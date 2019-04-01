@@ -53,5 +53,15 @@ def main():
 
     m.write("model.lp")
 
+    m.optimize()
+
+    if m.status == GRB.Status.OPTIMAL:
+        print('\nObjective Value: %g' % m.objVal)
+        for var in arc_vars["Movement Arcs"]:
+            if arc_vars["Movement Arcs"][var].X > 0:
+                print("{:<45s}| {:>6.0f}".format(str(var), arc_vars["Movement Arcs"][var].X))
+    else:
+        print('No solution;', m.status)
+
 if __name__ == "__main__":
     main()
