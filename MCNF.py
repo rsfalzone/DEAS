@@ -1,19 +1,15 @@
 import pandas as pd
 from gurobipy import *
 
-def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost):
+def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost, priority_list):
     print("greedy_swap")
     original_cost = model_cost
-    priority_list = ["8 X 30 TABLES", "6 X 30 TABLES", "8 X 18 TABLES", "6 X 18 TABLES", "66 ROUND TABLES", "HIGH BOYS", "30 COCKTAIL ROUNDS",
-        "MEETING ROOM CHAIRS", "PODIUMS", "STAGE SKIRT DOLLIES", "TABLE SKIRT DOLLIES", "MEETING ROOM CHAIR DOLLIES",
-        "66 ROUND TABLE DOLLIES", "FOLDING CHAIR DOLLIES (V STACK)", "FOLDING CHAIR DOLLIES (SQUARE STACK)", "HIGH BOY DOLLIES",
-        "LONG TABLE DOLLIES", "SHORT TABLE DOLLIES", "STAND UP TABLE DOLLIES", "16RISERS 6 X 8", "24RISERS 6 X 8", "32RISERS 6 X 8", "(3) STEP UNIT WITH RAIL",
-        "(3) STEP UNIT WITHOUT RAIL", "(2) STEP UNIT WITH RAIL", "(2) STEP UNIT WITHOUT RAIL","SETS OF STAGE STEPS", "16RISERS 6 X 8", "24RISERS 6 X 8", "30 STAND-UP ROUNDS"]
-    priority_list = ["CHAIRS", "TABLES"]
 
+    print(over_cap)
     time_echelons = {} ## TODO: Rename?
     for time in over_cap:
         time_echelons[time] = sorted(over_cap[time], key=lambda k: over_cap[time][k], reverse=True)
+    # print(time_echelons)
         # Sort:
         #     reverse = True
         #       - descending
@@ -48,6 +44,9 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost):
                             else:
                                 blue_arc_dict[commodity] = [arc]
 
+                # print(green_arc_dict)
+                # print(blue_arc_dict)
+
                 for commodity in priority_list:
                     # f.write("\n")
                     # f.write("Now moving " + str(commodity) + "\n")
@@ -70,6 +69,8 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost):
                                 cost = cost_dict[(under_node[0], destination_node[0])] - cost_dict[(over_node[0], destination_node[0])]
                                 orange_arc_dict[((under_node[0], time, 'b'), destination_node, commodity)] = cost
 
+                    # print(red_arc_dict)
+                    # print(orange_arc_dict)
                     insertion_dict = {}
                     for red in red_arc_dict:
                         for orange in orange_arc_dict:
@@ -260,8 +261,19 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost):
 
 
 def main():
-    # deas_xl = "DEAS_Equipment.xlsx"
-    deas_xl = "EquipmentInventoryTest2.xlsx"
+    deas_xl = "DEAS_Equipment.xlsx"
+    priority_list = ["CHAIRS", "TABLES"]
+
+    # deas_xl = "EquipmentInventory.xlsx"
+    # deas_xl = "EquipmentInventoryTest2.xlsx"
+
+    # priority_list = ["8 X 30 TABLES", "6 X 30 TABLES", "8 X 18 TABLES", "6 X 18 TABLES", "66 ROUND TABLES", "HIGH BOYS", "30 COCKTAIL ROUNDS",
+        # "MEETING ROOM CHAIRS", "PODIUMS", "STAGE SKIRT DOLLIES", "TABLE SKIRT DOLLIES", "MEETING ROOM CHAIR DOLLIES",
+        # "66 ROUND TABLE DOLLIES", "FOLDING CHAIR DOLLIES (V STACK)", "FOLDING CHAIR DOLLIES (SQUARE STACK)", "HIGH BOY DOLLIES",
+        # "LONG TABLE DOLLIES", "SHORT TABLE DOLLIES", "STAND UP TABLE DOLLIES", "16RISERS 6 X 8", "24RISERS 6 X 8", "32RISERS 6 X 8", "(3) STEP UNIT WITH RAIL",
+        # "(3) STEP UNIT WITHOUT RAIL", "(2) STEP UNIT WITH RAIL", "(2) STEP UNIT WITHOUT RAIL","SETS OF STAGE STEPS", "16RISERS 6 X 8", "24RISERS 6 X 8", "30 STAND-UP ROUNDS"]
+
+
     xl_data = pd.read_excel(deas_xl,
         sheet_name=[
         "Commodities", "Storage Rooms",
@@ -433,56 +445,56 @@ def main():
     # print(over_cap)
 
     # print(cost_dict)
-    greedy_swap(cost_dict, movement_arcs, under_cap, over_cap, unrelaxed_obj.getValue())
+    greedy_swap(cost_dict, movement_arcs, under_cap, over_cap, unrelaxed_obj.getValue(), priority_list)
 
 
     print('\nAx-b:')
     for s in cap_constrs:
         print(str(s) + ": " + str(cap_constrs[s].getValue()))
 
-    # iterations = 300
-    # while i < iterations:
-    #     stepsize = math.sqrt(1/i)
-    #     updated_lagrange_mults = {}
-    #     opt_check_vector = []
-    #     for s in lagrange_mults:
-    #         steepest_ascent = cap_constrs[s].getValue()
-    #         updated_lagrange_mults[s] = lagrange_mults[s] + max(stepsize * steepest_ascent, 0)
-    #         opt_check_vector.append((updated_lagrange_mults[s] - lagrange_mults[s])/i)
+    iterations = 100
+    while i < iterations:
+        stepsize = math.sqrt(1/i)
+        updated_lagrange_mults = {}
+        opt_check_vector = []
+        for s in lagrange_mults:
+            steepest_ascent = cap_constrs[s].getValue()
+            updated_lagrange_mults[s] = lagrange_mults[s] + max(stepsize * steepest_ascent, 0)
+            opt_check_vector.append((updated_lagrange_mults[s] - lagrange_mults[s])/i)
 
-    #     sum = 0
-    #     for x in opt_check_vector:
-    #         sum += x**2
-    #     norm = math.sqrt(sum)
+        sum = 0
+        for x in opt_check_vector:
+            sum += x**2
+        norm = math.sqrt(sum)
 
-    #     print(norm)
-    #     print(norm >0 )
-    #     if norm > 0 :
-    #         lagrange_mults = updated_lagrange_mults
-    #         objective = LinExpr()
-    #         penalty = LinExpr()
-    #         for s in cap_constrs:
-    #             penalty.add(cap_constrs[s], lagrange_mults[s])
-    #         objective.add(unrelaxed_obj)
-    #         objective.add(penalty)
-    #         m.setObjective(objective, GRB.MINIMIZE)
+        print(norm)
+        print(norm >0 )
+        if norm > 0 :
+            lagrange_mults = updated_lagrange_mults
+            objective = LinExpr()
+            penalty = LinExpr()
+            for s in cap_constrs:
+                penalty.add(cap_constrs[s], lagrange_mults[s])
+            objective.add(unrelaxed_obj)
+            objective.add(penalty)
+            m.setObjective(objective, GRB.MINIMIZE)
 
-    #         i += 1
-    #         print("\nIteration: {}".format(i))
-    #         print("lagrange_mults")
-    #         print(lagrange_mults)
-    #         print()
-    #         m.optimize()
-    #         print("Real Objective Value: %g" % unrelaxed_obj.getValue())
-    #         print('\nAx-b:')
-    #         for s in cap_constrs:
-    #             print(str(s) + ": " + str(cap_constrs[s].getValue()))
-    #         print("\nStorage Room Arcs:")
-    #         for var in arc_vars["Storage Room Arcs"]:
-    #             if arc_vars["Storage Room Arcs"][var].X > 0:
-    #                 print("{:<45s}| {:>6.0f}".format(str(var), arc_vars["Storage Room Arcs"][var].X))
-    #     else:
-    #         i = iterations
+            i += 1
+            print("\nIteration: {}".format(i))
+            print("lagrange_mults")
+            print(lagrange_mults)
+            print()
+            m.optimize()
+            print("Real Objective Value: %g" % unrelaxed_obj.getValue())
+            print('\nAx-b:')
+            for s in cap_constrs:
+                print(str(s) + ": " + str(cap_constrs[s].getValue()))
+            print("\nStorage Room Arcs:")
+            for var in arc_vars["Storage Room Arcs"]:
+                if arc_vars["Storage Room Arcs"][var].X > 0:
+                    print("{:<45s}| {:>6.0f}".format(str(var), arc_vars["Storage Room Arcs"][var].X))
+        else:
+            i = iterations
 
     if m.status == GRB.Status.OPTIMAL:
         print('\nPenalized Objective Value: %g' % m.objVal)
