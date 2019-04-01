@@ -5,7 +5,6 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost, 
     print("greedy_swap")
     original_cost = model_cost
 
-    print(over_cap)
     time_echelons = {} ## TODO: Rename?
     for time in over_cap:
         time_echelons[time] = sorted(over_cap[time], key=lambda k: over_cap[time][k], reverse=True)
@@ -87,8 +86,8 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost, 
 
                         blue_arc = (origin_node, over_node, commodity)
                         green_arc = ((over_node[0], over_node[1], 'b'), destination_node, commodity)
-                        print(movement_arcs_dict[blue_arc])
-                        print(movement_arcs_dict[green_arc])
+                        # print(movement_arcs_dict[blue_arc])
+                        # print(movement_arcs_dict[green_arc])
                         if (over_node in over_cap[time]) and (movement_arcs_dict[blue_arc] > 0) and (movement_arcs_dict[green_arc] > 0):
                             if under_node in under_cap[time]:
                                 # f.write("----------------------------------\n")
@@ -181,8 +180,8 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost, 
                         # below func gives [(key_with_lowest_value), (key_with_second_lowest_value), ...]
                         sorted_insertion_list = sorted(insertion_dict, key=lambda k: insertion_dict[k])
                         for red_arc in sorted_insertion_list:
-                            if insertion_dict[red_arc] < 0:
-                                print(str(red_arc) + ":  " + str(insertion_dict[red_arc]) + "\n")
+                            # if insertion_dict[red_arc] < 0:
+                                # print(str(red_arc) + ":  " + str(insertion_dict[red_arc]) + "\n")
                             # f.write("__________________________________\n")
                             # f.write("Red Arc: " +str(red_arc) + "\n")
                             origin_node = red_arc[0]
@@ -261,17 +260,17 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost, 
 
 
 def main():
-    deas_xl = "DEAS_Equipment.xlsx"
-    priority_list = ["CHAIRS", "TABLES"]
+    # deas_xl = "DEAS_Equipment.xlsx"
+    # priority_list = ["CHAIRS", "TABLES"]
 
-    # deas_xl = "EquipmentInventory.xlsx"
+    deas_xl = "EquipmentInventory.xlsx"
     # deas_xl = "EquipmentInventoryTest2.xlsx"
 
-    # priority_list = ["8 X 30 TABLES", "6 X 30 TABLES", "8 X 18 TABLES", "6 X 18 TABLES", "66 ROUND TABLES", "HIGH BOYS", "30 COCKTAIL ROUNDS",
-        # "MEETING ROOM CHAIRS", "PODIUMS", "STAGE SKIRT DOLLIES", "TABLE SKIRT DOLLIES", "MEETING ROOM CHAIR DOLLIES",
-        # "66 ROUND TABLE DOLLIES", "FOLDING CHAIR DOLLIES (V STACK)", "FOLDING CHAIR DOLLIES (SQUARE STACK)", "HIGH BOY DOLLIES",
-        # "LONG TABLE DOLLIES", "SHORT TABLE DOLLIES", "STAND UP TABLE DOLLIES", "16RISERS 6 X 8", "24RISERS 6 X 8", "32RISERS 6 X 8", "(3) STEP UNIT WITH RAIL",
-        # "(3) STEP UNIT WITHOUT RAIL", "(2) STEP UNIT WITH RAIL", "(2) STEP UNIT WITHOUT RAIL","SETS OF STAGE STEPS", "16RISERS 6 X 8", "24RISERS 6 X 8", "30 STAND-UP ROUNDS"]
+    priority_list = ["8 X 30 TABLES", "6 X 30 TABLES", "8 X 18 TABLES", "6 X 18 TABLES", "66 ROUND TABLES", "HIGH BOYS", "30 COCKTAIL ROUNDS",
+        "MEETING ROOM CHAIRS", "PODIUMS", "STAGE SKIRT DOLLIES", "TABLE SKIRT DOLLIES", "MEETING ROOM CHAIR DOLLIES",
+        "66 ROUND TABLE DOLLIES", "FOLDING CHAIR DOLLIES (V STACK)", "FOLDING CHAIR DOLLIES (SQUARE STACK)", "HIGH BOY DOLLIES",
+        "LONG TABLE DOLLIES", "SHORT TABLE DOLLIES", "STAND UP TABLE DOLLIES", "16RISERS 6 X 8", "24RISERS 6 X 8", "32RISERS 6 X 8", "(3) STEP UNIT WITH RAIL",
+        "(3) STEP UNIT WITHOUT RAIL", "(2) STEP UNIT WITH RAIL", "(2) STEP UNIT WITHOUT RAIL","SETS OF STAGE STEPS", "16RISERS 6 X 8", "24RISERS 6 X 8", "30 STAND-UP ROUNDS"]
 
 
     xl_data = pd.read_excel(deas_xl,
@@ -344,9 +343,9 @@ def main():
     #     else:
     #         s_room_caps[s] = 70
 
-    print(time_echelons)
+    # print(time_echelons)
     capped_nodes = [(s, t, "b") for s in s_rooms for t in time_echelons[1:-1]]
-    print(capped_nodes)
+    # print(capped_nodes)
 
 
 
@@ -415,10 +414,10 @@ def main():
     m.write("model.lp")
 
     i = 1
-    print("\nIteration: {}".format(i))
-    print("lagrange_mults")
-    print(lagrange_mults)
-    print()
+    # print("\nIteration: {}".format(i))
+    # print("lagrange_mults")
+    # print(lagrange_mults)
+    # print()
     m.optimize()
 
 
@@ -445,14 +444,13 @@ def main():
     # print(over_cap)
 
     # print(cost_dict)
-    greedy_swap(cost_dict, movement_arcs, under_cap, over_cap, unrelaxed_obj.getValue(), priority_list)
 
 
-    print('\nAx-b:')
-    for s in cap_constrs:
-        print(str(s) + ": " + str(cap_constrs[s].getValue()))
+    # print('\nAx-b:')
+    # for s in cap_constrs:
+    #     print(str(s) + ": " + str(cap_constrs[s].getValue()))
 
-    iterations = 100
+    iterations = 10
     while i < iterations:
         stepsize = math.sqrt(1/i)
         updated_lagrange_mults = {}
@@ -467,8 +465,8 @@ def main():
             sum += x**2
         norm = math.sqrt(sum)
 
-        print(norm)
-        print(norm >0 )
+        # print(norm)
+        # print(norm >0 )
         if norm > 0 :
             lagrange_mults = updated_lagrange_mults
             objective = LinExpr()
@@ -480,21 +478,36 @@ def main():
             m.setObjective(objective, GRB.MINIMIZE)
 
             i += 1
-            print("\nIteration: {}".format(i))
-            print("lagrange_mults")
-            print(lagrange_mults)
-            print()
+            # print("\nIteration: {}".format(i))
+            # print("lagrange_mults")
+            # print(lagrange_mults)
+            # print()
             m.optimize()
-            print("Real Objective Value: %g" % unrelaxed_obj.getValue())
-            print('\nAx-b:')
-            for s in cap_constrs:
-                print(str(s) + ": " + str(cap_constrs[s].getValue()))
-            print("\nStorage Room Arcs:")
-            for var in arc_vars["Storage Room Arcs"]:
-                if arc_vars["Storage Room Arcs"][var].X > 0:
-                    print("{:<45s}| {:>6.0f}".format(str(var), arc_vars["Storage Room Arcs"][var].X))
+            # print("Real Objective Value: %g" % unrelaxed_obj.getValue())
+            # print('\nAx-b:')
+            # for s in cap_constrs:
+            #     print(str(s) + ": " + str(cap_constrs[s].getValue()))
+            # print("\nStorage Room Arcs:")
+            # for var in arc_vars["Storage Room Arcs"]:
+            #     if arc_vars["Storage Room Arcs"][var].X > 0:
+            #         print("{:<45s}| {:>6.0f}".format(str(var), arc_vars["Storage Room Arcs"][var].X))
         else:
             i = iterations
+
+    print("\nIteration: {}".format(i))
+    print("lagrange_mults")
+    print(lagrange_mults)
+    print()
+    print("Real Objective Value: %g" % unrelaxed_obj.getValue())
+    print('\nAx-b:')
+    for s in cap_constrs:
+        print(str(s) + ": " + str(cap_constrs[s].getValue()))
+    print("\nStorage Room Arcs:")
+    for var in arc_vars["Storage Room Arcs"]:
+        if arc_vars["Storage Room Arcs"][var].X > 0:
+            print("{:<45s}| {:>6.0f}".format(str(var), arc_vars["Storage Room Arcs"][var].X))
+
+    greedy_swap(cost_dict, movement_arcs, under_cap, over_cap, unrelaxed_obj.getValue(), priority_list)
 
     if m.status == GRB.Status.OPTIMAL:
         print('\nPenalized Objective Value: %g' % m.objVal)
