@@ -13,7 +13,7 @@ def main():
 
     time_echelons = [0,1,2,3]
     commodities = ["CHAIRS", "TABLES"]
-    rooms = [r_type + r_num for r_type in ["E", "S"] for r_num in ["1"]]
+    rooms = [r_type + r_num for r_type in ["E", "S"] for r_num in ["1", "2"]]
     fb_nodes = [(r, t, d) for r in rooms for t in time_echelons[:-1] for d in ["a", "b"] if not (t == 0 and d == "a")]
     fb_nodes += [("t", time_echelons[-1], "a")]
     nodes = fb_nodes + [("s", 0, "a")] + [("t", time_echelons[-1],"b")]
