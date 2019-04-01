@@ -39,7 +39,6 @@ def main():
     arc_vars = {}
     name_format = "(({}, {}, {}), ({}, {}, {}), {})"
     for arc_sheet in ["Movement Arcs", "Storage Room Arcs", "Event Room Arcs", "Utility Arcs"]:
-        print(arc_sheet)
         arc_data = xl_data[arc_sheet].values.tolist()
         if len(arc_data) > 1:
             arcs = [((arc[0], arc[1], arc[2]), (arc[3], arc[4], arc[5]), arc[6]) for arc in arc_data]
@@ -96,13 +95,60 @@ def main():
 
     m.write("model.lp")
 
+    i = 1
+    print("\nIteration: {}".format(i))
+    print("lagrange_mults")
+    print(lagrange_mults)
+    print()
     m.optimize()
+
     print('\nAx-b:')
     for s in cap_constrs:
         print(str(s) + ": " + str(cap_constrs[s].getValue()))
 
+    iterations = 3
+    while i < iterations:
+        stepsize = math.sqrt(1/i)
+        updated_lagrange_mults = {}
+        opt_check_vector = []
+        for s in lagrange_mults:
+            steepest_ascent = cap_constrs[s].getValue()
+            updated_lagrange_mults[s] = max(lagrange_mults[s] + stepsize * steepest_ascent, 0)
+            opt_check_vector.append((updated_lagrange_mults[s] - lagrange_mults[s])/i)
+        sum = 0
+        for x in opt_check_vector:
+            sum += x**2
+        norm = math.sqrt(sum)
+        if norm > 0 :
+            lagrange_mults = updated_lagrange_mults
+            objective = LinExpr()
+            penalty = LinExpr()
+            for s in cap_constrs:
+                penalty.add(cap_constrs[s], lagrange_mults[s])
+            objective.add(unrelaxed_obj)
+            objective.add(penalty)
+            m.setObjective(objective, GRB.MINIMIZE)
+
+            i += 1
+            print("\nIteration: {}".format(i))
+            print("lagrange_mults")
+            print(lagrange_mults)
+            print()
+            m.optimize()
+            print("Real Objective Value: %g" % unrelaxed_obj.getValue())
+            print('\nAx-b:')
+            for s in cap_constrs:
+                print(str(s) + ": " + str(cap_constrs[s].getValue()))
+            print("\nStorage Room Arcs:")
+            for var in arc_vars["Storage Room Arcs"]:
+                if arc_vars["Storage Room Arcs"][var].X > 0:
+                    print("{:<45s}| {:>6.0f}".format(str(var), arc_vars["Storage Room Arcs"][var].X))
+        else:
+            i = iterations
+
     if m.status == GRB.Status.OPTIMAL:
-        print('\nObjective Value: %g' % m.objVal)
+        print('\nPenalized Objective Value: %g' % m.objVal)
+        print("Real Objective Value: %g" % unrelaxed_obj.getValue())
         print("Movement Arcs:")
         for var in arc_vars["Movement Arcs"]:
             if arc_vars["Movement Arcs"][var].X > 0:
@@ -111,8 +157,12 @@ def main():
         for var in arc_vars["Storage Room Arcs"]:
             if arc_vars["Storage Room Arcs"][var].X > 0:
                 print("{:<45s}| {:>6.0f}".format(str(var), arc_vars["Storage Room Arcs"][var].X))
+        print('\nAx-b:')
+        for s in cap_constrs:
+            print(str(s) + ": " + str(cap_constrs[s].getValue()))
     else:
         print('No solution;', m.status)
+    print("\a")
 
 if __name__ == "__main__":
     main()
