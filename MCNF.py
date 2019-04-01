@@ -37,6 +37,20 @@ def main():
             arc_vars[arc_sheet] = tupledict({((arc[0], arc[1], arc[2]), (arc[3], arc[4], arc[5]), arc[6]):arc_var})
     m.update()
 
+    for node in fb_nodes:
+        for commodity in commodities:
+            LHS = LinExpr()
+            RHS = LinExpr()
+            for arc_type in arc_vars:
+                for tail, head, com in arc_vars[arc_type]:
+                    if com == commodity:
+                        if head == node:
+                            LHS.add(arc_vars[arc_type][(tail, head, com)])
+                        elif tail == node:
+                            RHS.add(arc_vars[arc_type][(tail, head, com)])
+            m.addConstr(LHS, sense=GRB.EQUAL, rhs=RHS, name=str((node, commodity)).replace(" ", "_"))
+    m.update()
+
     m.write("model.lp")
 
 if __name__ == "__main__":
