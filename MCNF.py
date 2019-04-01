@@ -1,4 +1,5 @@
 import pandas as pd
+from gurobipy import *
 
 def main():
     deas_xl = "DEAS_Equipment.xlsx"
@@ -35,6 +36,7 @@ def main():
             arc_var = m.addVar(lb=arc[7], ub=arc[8], obj=arc[9], name=name_format.format(*arc[0:7]).replace(" ", "_"))
             arc_vars[arc_sheet] = tupledict({((arc[0], arc[1], arc[2]), (arc[3], arc[4], arc[5]), arc[6]):arc_var})
     m.update()
+
     m.write("model.lp")
 
 if __name__ == "__main__":
