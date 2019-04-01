@@ -319,11 +319,11 @@ def main():
     # rooms = [r_type + r_num for r_type in ["E", "S"] for r_num in ["1", "2"]]
     # e_rooms = ["E" + r_num for r_num in ["1", "2"]]
     # s_rooms = ["S" + r_num for r_num in ["1", "2"]]
+    time_echelons = sorted(time_echelons)
     rooms = e_rooms + s_rooms
-
     s_room_caps = {}
     for row in xl_data["Storage Rooms"].values.tolist():
-        s_room_caps[row[0]] = row[1]
+        s_room_caps[row[0]] = row[3]
     # print(s_room_caps)
 
     # for s in s_rooms:
@@ -332,7 +332,9 @@ def main():
     #     else:
     #         s_room_caps[s] = 70
 
+    print(time_echelons)
     capped_nodes = [(s, t, "b") for s in s_rooms for t in time_echelons[1:-1]]
+    print(capped_nodes)
 
 
 
