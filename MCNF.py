@@ -9,11 +9,13 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost):
         "66 ROUND TABLE DOLLIES", "FOLDING CHAIR DOLLIES (V STACK)", "FOLDING CHAIR DOLLIES (SQUARE STACK)", "HIGH BOY DOLLIES",
         "LONG TABLE DOLLIES", "SHORT TABLE DOLLIES", "STAND UP TABLE DOLLIES", "16RISERS 6 X 8", "24RISERS 6 X 8", "32RISERS 6 X 8", "(3) STEP UNIT WITH RAIL",
         "(3) STEP UNIT WITHOUT RAIL", "(2) STEP UNIT WITH RAIL", "(2) STEP UNIT WITHOUT RAIL","SETS OF STAGE STEPS", "16RISERS 6 X 8", "24RISERS 6 X 8", "30 STAND-UP ROUNDS"]
-    priority_list = ["CHAIRS", "TABLES"]
+    # priority_list = ["CHAIRS", "TABLES"]
 
+    print(over_cap)
     time_echelons = {} ## TODO: Rename?
     for time in over_cap:
         time_echelons[time] = sorted(over_cap[time], key=lambda k: over_cap[time][k], reverse=True)
+    # print(time_echelons)
         # Sort:
         #     reverse = True
         #       - descending
@@ -48,6 +50,9 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost):
                             else:
                                 blue_arc_dict[commodity] = [arc]
 
+                # print(green_arc_dict)
+                # print(blue_arc_dict)
+
                 for commodity in priority_list:
                     # f.write("\n")
                     # f.write("Now moving " + str(commodity) + "\n")
@@ -70,6 +75,8 @@ def greedy_swap(cost_dict, movement_arcs_dict, under_cap, over_cap, model_cost):
                                 cost = cost_dict[(under_node[0], destination_node[0])] - cost_dict[(over_node[0], destination_node[0])]
                                 orange_arc_dict[((under_node[0], time, 'b'), destination_node, commodity)] = cost
 
+                    # print(red_arc_dict)
+                    # print(orange_arc_dict)
                     insertion_dict = {}
                     for red in red_arc_dict:
                         for orange in orange_arc_dict:
