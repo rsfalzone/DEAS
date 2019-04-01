@@ -12,7 +12,7 @@ def main():
 
 
     time_echelons = [0,1,2,3]
-    commodities = ["CHAIRS"]
+    commodities = ["CHAIRS", "TABLES"]
     rooms = [r_type + r_num for r_type in ["E", "S"] for r_num in ["1"]]
     fb_nodes = [(r, t, d) for r in rooms for t in time_echelons[:-1] for d in ["a", "b"] if not (t == 0 and d == "a")]
     fb_nodes += [("t", time_echelons[-1], "a")]
@@ -22,6 +22,7 @@ def main():
     arc_vars = {}
     name_format = "(({}, {}, {}), ({}, {}, {}), {})"
     for arc_sheet in ["Movement Arcs", "Storage Room Arcs", "Event Room Arcs", "Utility Arcs"]:
+        print(arc_sheet)
         arc_data = xl_data[arc_sheet].values.tolist()
         if len(arc_data) > 1:
             arcs = [((arc[0], arc[1], arc[2]), (arc[3], arc[4], arc[5]), arc[6]) for arc in arc_data]
