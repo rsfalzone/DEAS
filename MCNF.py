@@ -11,7 +11,7 @@ def main():
         ])
 
 
-    time_echelons = [0,1,2]
+    time_echelons = [0,1,2,3]
     commodities = ["CHAIRS"]
     rooms = [r_type + r_num for r_type in ["E", "S"] for r_num in ["1"]]
     fb_nodes = [(r, t, d) for r in rooms for t in time_echelons[:-1] for d in ["a", "b"] if not (t == 0 and d == "a")]
