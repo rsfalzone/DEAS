@@ -1,6 +1,6 @@
 import pandas as pd
 from gurobipy import *
-from DEASmodel import DEASModel
+from LagrangianRelaxation import LagrangianRelaxation
 
 def linExpr2Str(linExpr):
     string = ""
@@ -437,9 +437,9 @@ def main():
 
     m.write("model.lp")
 
-    lr = DEASModel(m, iterations=10, relaxedConstrs=cap_constrs, commodityPriority=priority_list, costs=cost_dict)
+    lr = LagrangianRelaxation(m, iterations=10, relaxedConstrs=cap_constrs, commodityPriority=priority_list, costs=cost_dict, arc_vars=arc_vars)
     output = lr.subgradientAscent()
-    greedy_swap(cost_dict, arc_vars, cap_constrs, lr.m.objVal, priority_list)
+    # greedy_swap(cost_dict, arc_vars, cap_constrs, lr.m.objVal, priority_list)
     print(output)
 #
 # Gurobi Model
