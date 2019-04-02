@@ -210,7 +210,7 @@ def dataFramer(arcDict):
     # writer.save()
     return df
 
-def main(args):
+def sup():
 
     cost_dict = costDataReader(excel_filename)
     (inventory_dict, echelon_dict, event_room_list, item_list, requirement_dict, total_inventory_dict, storage_cap_dict) = currentStateReader(excel_filename)
