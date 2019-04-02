@@ -343,6 +343,7 @@ class LagrangianRelaxation(object):
 
     def subgradientAscent(self):
         updated_costs = []
+        diff_in_cost = []
         self.m.optimize()
         if self.m.status == GRB.Status.OPTIMAL:
             if any(self.relaxedConstrs) and (self.lagrangeMults.keys() == self.relaxedConstrs.keys()):
@@ -359,11 +360,14 @@ class LagrangianRelaxation(object):
                         self.lagrangeMults = currLagrangeMults
                         self.updateObj()
                         self.m.optimize()
-                        updated_costs.append(self.greedyAlgorithm())
+                        cost_w_greedy = self.greedyAlgorithm()
+                        updated_costs.append(cost_w_greedy)
+                        diff_in_cost.append(diff_in_cost)
                         i += 1
                     else:
                         self.iterations = i
                 print(updated_costs)
+                pritn(diff_in_cost)
                 self.printOutput()
                 return self.iterations
             else:
