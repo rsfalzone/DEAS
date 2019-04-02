@@ -7,6 +7,27 @@ def norm(vector):
         sum += x**2
     return math.sqrt(sum)
 
+def linExpr2Str(linExpr):
+    string = ""
+    for i in range(linExpr.size()):
+        if i > 0:
+            if linExpr.getCoeff(i) > 0:
+                string += " + "
+            elif linExpr.getCoeff(i) < 0:
+                string += " - "
+        if abs(linExpr.getCoeff(i)) > 0:
+            string += "*".join([str(abs(linExpr.getCoeff(i))), linExpr.getVar(i).VarName])
+    if linExpr.getConstant() >= 0:
+        string += " + " + str(abs(linExpr.getConstant()))
+    else:
+        string += " - " + str(abs(linExpr.getConstant()))
+    try:
+        string += " = " + str(linExpr.getValue())
+    except:
+        pass
+    return string
+
+
 class LagrangianRelaxation(object):
     def __init__(self, m, iterations=1000, relaxedConstrs=None, commodityPriority=None, cost_dict=None, arc_vars=None):
         self.m = m
@@ -31,7 +52,7 @@ class LagrangianRelaxation(object):
         self.objective.add(penalty)
         return self.objective
 
-    def greedyAlgorithm(self):
+    def greedyAlgorithm(self, iteration):
         print("greedy_swap")
         original_cost = self.unrelaxedObj.getValue()
         model_cost = original_cost
@@ -68,7 +89,7 @@ class LagrangianRelaxation(object):
             #            for k in over_cap[time].keys():
             #                k -> over_cap[time][k]
 
-        with open("log_file.txt","w") as f:
+        with open(str(iteration).join(["log_file", ".txt"]),"w") as f:
             f.write("\nINPUT:\n")
             f.write("MCNF Cost: "+ str(original_cost)+ "\n")
             f.write("Remaining over nodes:\n")
@@ -320,27 +341,27 @@ class LagrangianRelaxation(object):
         return model_cost
 
 
-    def printOutput(self):
+    def printOutput(self, i):
         print("Results of Subgradient")
-    # if m.status == GRB.Status.OPTIMAL:
-    #     print()
-    #     print("GUROBI MODEL OUTPUT:")
-    #     print('Penalized Objective Value: %g' % m.objVal)
-    #     print("Real Objective Value: %g" % unrelaxedObj.getValue())
-    #     print("Iterations of Subgradient Ascent: {}".format(iterations))
-    #     print("Movement Arcs:")
-    #     for var in arc_vars["Movement Arcs"]:
-    #         if arc_vars["Movement Arcs"][var].X > 0:
-    #             print("{:<60s}| {:>8.0f}".format(str(var), arc_vars["Movement Arcs"][var].X))
-    #     print("\nStorage Room Arcs:")
-    #     for var in arc_vars["Storage Room Arcs"]:
-    #         if arc_vars["Storage Room Arcs"][var].X > 0:
-    #             print("{:<60s}| {:>8.0f}".format(str(var), arc_vars["Storage Room Arcs"][var].X))
-    #     print('\nAx-b:')
-    #     for s in relaxedConstrs:
-    #         print(str(s) + ": " + str(relaxedConstrs[s].getValue()))
-    # else:
-    #     print('No solution;', m.status)
+        if self.m.status == GRB.Status.OPTIMAL:
+            print()
+            print("GUROBI MODEL OUTPUT:")
+            print('Penalized Objective Value: %g' % self.m.objVal)
+            print("Real Objective Value: %g" % self.unrelaxedObj.getValue())
+            print("Iterations of Subgradient Ascent: {}".format(i))
+            print("Movement Arcs:")
+            for var in self.arc_vars["Movement Arcs"]:
+                if self.arc_vars["Movement Arcs"][var].X > 0:
+                    print("{:<60s}| {:>8.0f}".format(str(var), self.arc_vars["Movement Arcs"][var].X))
+            print("\nStorage Room Arcs:")
+            for var in self.arc_vars["Storage Room Arcs"]:
+                if self.arc_vars["Storage Room Arcs"][var].X > 0:
+                    print("{:<60s}| {:>8.0f}".format(str(var), self.arc_vars["Storage Room Arcs"][var].X))
+            print('\nAx-b:')
+            for s in self.relaxedConstrs:
+                print(str(s) + ": " + str(self.relaxedConstrs[s].getValue()))
+        else:
+            print('No solution;', self.m.status)
 
     def subgradientAscent(self):
         updated_costs = []
@@ -360,16 +381,18 @@ class LagrangianRelaxation(object):
                     if norm(dLagrangeMults) > 0 :
                         self.lagrangeMults = currLagrangeMults
                         self.updateObj()
+                        print(linExpr2Str(self.m.getObjective()))
+                        print(linExpr2Str(self.unrelaxedObj))
                         self.m.optimize()
-                        cost_w_greedy = self.greedyAlgorithm()
-                        updated_costs.append(cost_w_greedy)
-                        diff_in_cost.append(diff_in_cost)
+                        # cost_w_greedy = self.greedyAlgorithm(i)
+                        # updated_costs.append(cost_w_greedy)
+                        # diff_in_cost.append()
+                        self.printOutput(i)
                         i += 1
                     else:
                         self.iterations = i
                 print(updated_costs)
-                print(diff_in_cost)
-                self.printOutput()
+                # print(diff_in_cost)
                 return self.iterations
             else:
                 # No relaxed constraints to penalize
