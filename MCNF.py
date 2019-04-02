@@ -62,6 +62,25 @@ def greedy_swap(cost_dict, arc_vars, cap_constrs, model_cost, priority_list):
         #                k -> over_cap[time][k]
 
     with open("log_file.txt","w") as f:
+        f.write("\nINPUT:\n")
+        f.write("MCNF Cost: "+ str(original_cost)+ "\n")
+        f.write("Remaining over nodes:\n")
+        for time in  over_cap:
+            for over_node in  over_cap[time]:
+                f.write(": ".join([str(over_node), str(over_cap[time][over_node])])+ "\n")
+        for time in  over_cap:
+            for over_node in  over_cap[time]:
+                for x in movement_arcs_dict:
+                    if movement_arcs_dict[x] >0:
+                        if x[1] == over_node:
+                            f.write(str(x) + ": " + str(movement_arcs_dict[x]) + "\n")
+
+        f.write("Starting under nodes:\n")
+        for time in under_cap:
+            for under_node in  under_cap[time]:
+                f.write(": ".join([str(under_node), str(under_cap[time][under_node])])+ "\n")
+
+
         for time in sorted(list(time_echelons))[:-1]:
             for over_node in time_echelons[time]:
                 # f.write("__________________________________\n")
