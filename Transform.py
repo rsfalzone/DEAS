@@ -193,7 +193,7 @@ def arcDictWriter(arcDict, filename):
         writer.writerow(["Xi", "Yi", "Zi", "Xj", "Yj", "Zj", "Item", "Lij", "Uij", "Cij"])
         writer.writerows(arcList)
 
-def excelWriter(arcDict, filename, sheet_name):
+def dataFramer(arcDict):
     arcList = []
     arcList.append(["Xi", "Yi", "Zi", "Xj", "Yj", "Zj", "Item", "Lij", "Uij", "Cij"])
     for arc in arcDict.keys():
@@ -201,54 +201,29 @@ def excelWriter(arcDict, filename, sheet_name):
             arc[1][2], arc[2], arcDict[arc][0], arcDict[arc][1], arcDict[arc][2]])
 
     #Writes to master excel sheet
-    book = load_workbook(excel_filename)
+    # book = load_workbook(excel_filename)
     df = pd.DataFrame(arcList)
-    writer = pd.ExcelWriter(excel_filename, engine='openpyxl')
-    writer.book = book
-    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-    df.to_excel(writer, sheet_name=sheet_name, index=False, index_label=False, header=False)
-    writer.save()
-    return None
-
-# def auxiliaryWriter(filename, sheet_name):
-#     room_list = []
-#     room_list.append(["Room ID", "Room Name"])
-#     for room in roomDict.keys():
-#         room_list.append([room, roomDict[room]])
-#     book = load_workbook("EquipmentInventory.xlsx")
-#     df = pd.DataFrame(room_list)
-#     writer = pd.ExcelWriter("EquipmentInventory.xlsx", engine='openpyxl')
-#     writer.book = book
-#     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-#     df.to_excel(writer, sheet_name=sheet_name, index=False, index_label=False, header=False)
-#     writer.save()
-#     return None
+    # writer = pd.ExcelWriter(excel_filename, engine='openpyxl')
+    # writer.book = book
+    # writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+    # df.to_excel(writer, sheet_name=sheet_name, index=False, index_label=False, header=False)
+    # writer.save()
+    return df
 
 def main(args):
 
     cost_dict = costDataReader(excel_filename)
-    #print(cost_dict)
     (inventory_dict, echelon_dict, event_room_list, item_list, requirement_dict, total_inventory_dict, storage_cap_dict) = currentStateReader(excel_filename)
-    #print(total_inventory_dict)
-    # print(inventory_dict)
-    # print("\n\n")
-    # print(requirement_dict)
-    # print("\n\n")
-    # print(echelon_dict)
-    # print("\n\n")
-    # print(event_room_list)
-    # print("\n\n")
-    # print(item_list)
-
     movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = constructor(echelon_dict, event_room_list, item_list, cost_dict, requirement_dict, inventory_dict, total_inventory_dict, storage_cap_dict)
     # arcDictWriter(movement_arc_dict, "MovementArcs.csv")
     # arcDictWriter(storage_cap_arc_dict, "StorageCapacityArcs.csv")
     # arcDictWriter(event_req_arc_dict, "EventRequirementArcs.csv")
     # arcDictWriter(utility_arc_dict, "UtilityArcs.csv")
-    excelWriter(movement_arc_dict, excel_filename, "Movement Arcs")
-    excelWriter(storage_cap_arc_dict, excel_filename, "Storage Room Arcs")
-    excelWriter(event_req_arc_dict, excel_filename, "Event Room Arcs")
-    excelWriter(utility_arc_dict, excel_filename, "Utility Arcs")
+    movement_arc_df = dataFramer(movement_arc_dict)
+    storage_cap_arc_df = dataFramer(storage_cap_arc_dict)
+    event_req_arc_df = dataFramer(event_req_arc_dict)
+    utility_arc_df = dataFramer(utility_arc_dict)
+    df_dict = {'movement': movement_arc_df, 'storage': storage_cap_arc_df, 'event': event_req_arc_df, 'utility': utility_arc_df}
     #auxiliaryWriter(room_dict, "EquipmentInventory.xlsx", "Room Dictionary")
     #print(eventRoomList)
     #print(itemList)
@@ -257,6 +232,8 @@ def main(args):
     # print(len(event_room_list))
     # print(len(echelon_dict.keys()))
     print("\a")
+
+    return(df_dict)
 
 if __name__ == '__main__':
     import sys
