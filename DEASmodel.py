@@ -14,7 +14,7 @@ class DEASModel(LagrangianRelaxation):
                 print("inputs exist, Ready to start")
 
 
-# movement_arcs = {}
+#     movement_arcs = {}
 #     for x in arc_vars["Movement Arcs"]:
 #         movement_arcs[x] = arc_vars["Movement Arcs"][x].X
 
