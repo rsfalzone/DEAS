@@ -47,10 +47,11 @@ class LagrangianRelaxation(object):
         for c in self.relaxedConstrs:
             penalty.add(self.relaxedConstrs[c], self.lagrangeMults[c])
 
-        self.objective = LinExpr()
-        self.objective.add(self.unrelaxedObj)
-        self.objective.add(penalty)
-        return self.objective
+        objective = LinExpr()
+        objective.add(self.unrelaxedObj)
+        objective.add(penalty)
+        self.m.setObjective(objective, self.mSense)
+        return objective
 
     def greedyAlgorithm(self, iteration):
         print("greedy_swap")
