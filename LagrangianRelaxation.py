@@ -33,17 +33,18 @@ class LagrangianRelaxation(object):
 
     def greedyAlgorithm(self):
         print("greedy_swap")
-        original_cost = model_cost
+        original_cost = self.unrelaxedObj.getValue()
+        model_cost = original_cost
 
         movement_arcs_dict = {}
         for x in self.arc_vars["Movement Arcs"]:
-            movement_arcs_dict[x] = arc_vars["Movement Arcs"][x].X
+            movement_arcs_dict[x] = self.arc_vars["Movement Arcs"][x].X
 
         under_cap = {}
         over_cap = {}
-        for node in cap_constrs:
+        for node in self.relaxedConstrs:
             if node[0] != "t":
-                axb = cap_constrs[node].getValue()
+                axb = self.relaxedConstrs[node].getValue()
                 if axb < 0:
                     if node[1] in under_cap:
                         under_cap[node[1]][(node[0], node[1], "a")] =  axb
@@ -115,7 +116,7 @@ class LagrangianRelaxation(object):
                     # print(green_arc_dict)
                     # print(blue_arc_dict)
 
-                    for commodity in priority_list:
+                    for commodity in self.commodityPriority:
                         # f.write("\n")
                         # f.write("Now moving " + str(commodity) + "\n")
                         # print("Now moving " + str(commodity))
@@ -229,7 +230,7 @@ class LagrangianRelaxation(object):
                                     else:
                                         blue_arc_dict[commodity] = [arc]
 
-                        for commodity in priority_list:
+                        for commodity in self.commodityPriority:
                             # f.write("\n")
                             # f.write("Now moving " + str(commodity) + "\n")
                             print("Now moving " + str(commodity))
@@ -325,7 +326,7 @@ class LagrangianRelaxation(object):
     #     print()
     #     print("GUROBI MODEL OUTPUT:")
     #     print('Penalized Objective Value: %g' % m.objVal)
-    #     print("Real Objective Value: %g" % unrelaxed_obj.getValue())
+    #     print("Real Objective Value: %g" % unrelaxedObj.getValue())
     #     print("Iterations of Subgradient Ascent: {}".format(iterations))
     #     print("Movement Arcs:")
     #     for var in arc_vars["Movement Arcs"]:
@@ -336,8 +337,8 @@ class LagrangianRelaxation(object):
     #         if arc_vars["Storage Room Arcs"][var].X > 0:
     #             print("{:<60s}| {:>8.0f}".format(str(var), arc_vars["Storage Room Arcs"][var].X))
     #     print('\nAx-b:')
-    #     for s in cap_constrs:
-    #         print(str(s) + ": " + str(cap_constrs[s].getValue()))
+    #     for s in relaxedConstrs:
+    #         print(str(s) + ": " + str(relaxedConstrs[s].getValue()))
     # else:
     #     print('No solution;', m.status)
 
@@ -367,7 +368,7 @@ class LagrangianRelaxation(object):
                     else:
                         self.iterations = i
                 print(updated_costs)
-                pritn(diff_in_cost)
+                print(diff_in_cost)
                 self.printOutput()
                 return self.iterations
             else:

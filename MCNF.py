@@ -317,17 +317,17 @@ def greedy_swap(cost_dict, arc_vars, cap_constrs, model_cost, priority_list):
         #                 f.write(str(x) + ": " + str(movement_arcs_dict[x]) + "\n")
 
 def main():
-    # deas_xl = "DEAS_Equipment.xlsx"
-    # priority_list = ["CHAIRS", "TABLES"]
+    deas_xl = "DEAS_Equipment.xlsx"
+    priority_list = ["CHAIRS", "TABLES"]
 
-    deas_xl = "EquipmentInventory.xlsx"
+    # deas_xl = "EquipmentInventory.xlsx"
     # deas_xl = "EquipmentInventoryTest2.xlsx"
 
-    priority_list = ["8 X 30 TABLES", "6 X 30 TABLES", "8 X 18 TABLES", "6 X 18 TABLES", "66 ROUND TABLES", "HIGH BOYS", "30 COCKTAIL ROUNDS",
-        "MEETING ROOM CHAIRS", "PODIUMS", "STAGE SKIRT DOLLIES", "TABLE SKIRT DOLLIES", "MEETING ROOM CHAIR DOLLIES",
-        "66 ROUND TABLE DOLLIES", "FOLDING CHAIR DOLLIES (V STACK)", "FOLDING CHAIR DOLLIES (SQUARE STACK)", "HIGH BOY DOLLIES",
-        "LONG TABLE DOLLIES", "SHORT TABLE DOLLIES", "STAND UP TABLE DOLLIES", "16RISERS 6 X 8", "24RISERS 6 X 8", "32RISERS 6 X 8", "(3) STEP UNIT WITH RAIL",
-        "(3) STEP UNIT WITHOUT RAIL", "(2) STEP UNIT WITH RAIL", "(2) STEP UNIT WITHOUT RAIL","SETS OF STAGE STEPS", "16RISERS 6 X 8", "24RISERS 6 X 8", "30 STAND-UP ROUNDS"]
+    # priority_list = ["8 X 30 TABLES", "6 X 30 TABLES", "8 X 18 TABLES", "6 X 18 TABLES", "66 ROUND TABLES", "HIGH BOYS", "30 COCKTAIL ROUNDS",
+    #     "MEETING ROOM CHAIRS", "PODIUMS", "STAGE SKIRT DOLLIES", "TABLE SKIRT DOLLIES", "MEETING ROOM CHAIR DOLLIES",
+    #     "66 ROUND TABLE DOLLIES", "FOLDING CHAIR DOLLIES (V STACK)", "FOLDING CHAIR DOLLIES (SQUARE STACK)", "HIGH BOY DOLLIES",
+    #     "LONG TABLE DOLLIES", "SHORT TABLE DOLLIES", "STAND UP TABLE DOLLIES", "16RISERS 6 X 8", "24RISERS 6 X 8", "32RISERS 6 X 8", "(3) STEP UNIT WITH RAIL",
+    #     "(3) STEP UNIT WITHOUT RAIL", "(2) STEP UNIT WITH RAIL", "(2) STEP UNIT WITHOUT RAIL","SETS OF STAGE STEPS", "16RISERS 6 X 8", "24RISERS 6 X 8", "30 STAND-UP ROUNDS"]
 
 ## NOT NEEDED AFTER TRANSFOR IS UPDATED
     xl_data = pd.read_excel(deas_xl,
@@ -437,7 +437,7 @@ def main():
 
     m.write("model.lp")
 
-    lr = LagrangianRelaxation(m, iterations=10, relaxedConstrs=cap_constrs, commodityPriority=priority_list, costs_dict=cost_dict, arc_vars=arc_vars)
+    lr = LagrangianRelaxation(m, iterations=10, relaxedConstrs=cap_constrs, commodityPriority=priority_list, cost_dict=cost_dict, arc_vars=arc_vars)
     output = lr.subgradientAscent()
     # greedy_swap(cost_dict, arc_vars, cap_constrs, lr.m.objVal, priority_list)
     print(output)
