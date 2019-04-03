@@ -365,9 +365,11 @@ class LagrangianRelaxation(object):
             print('No solution;', self.m.status)
 
     def subgradientAscent(self):
-        updated_costs = []
-        diff_in_cost = []
+        sub_cost = []
+        greedy_cost = []
+        self.updateObj()
         self.m.optimize()
+        self.printOutput(0)
         if self.m.status == GRB.Status.OPTIMAL:
             if any(self.relaxedConstrs) and (self.lagrangeMults.keys() == self.relaxedConstrs.keys()):
                 i = 1
@@ -377,28 +379,30 @@ class LagrangianRelaxation(object):
                     dLagrangeMults = []     # Rate of change vector for Lagrange mults
                     for c in self.relaxedConstrs:
                         steepestAscent = self.relaxedConstrs[c].getValue()
-                        currLagrangeMults[c] = self.lagrangeMults[c] + max(stepsize * steepestAscent, 0)
-                        dLagrangeMults.append((currLagrangeMults[c] - self.lagrangeMults[c]) / i)
+                        currLagrangeMults[c] = max(self.lagrangeMults[c] + stepsize * steepestAscent, 0)
+                        dLagrangeMults.append((currLagrangeMults[c] - self.lagrangeMults[c]) / stepsize)
+                    print(currLagrangeMults)
                     if norm(dLagrangeMults) > 0 :
                         self.lagrangeMults = currLagrangeMults
                         self.updateObj()
-                        print(linExpr2Str(self.m.getObjective()))
-                        print(linExpr2Str(self.unrelaxedObj))
+                        # print(linExpr2Str(self.m.getObjective()))
+                        # print(linExpr2Str(self.unrelaxedObj))
                         self.m.optimize()
                         # cost_w_greedy = self.greedyAlgorithm(i)
-                        # updated_costs.append(cost_w_greedy)
-                        # diff_in_cost.append()
+                        # sub_cost.append(self.unrelaxedObj.getValue())
+                        # greedy_cost.append(cost_w_greedy)
                         self.printOutput(i)
                         i += 1
                     else:
                         self.iterations = i
-                print(updated_costs)
-                # print(diff_in_cost)
+                # print(sub_cost)
+                # print(greedy_cost)
+
                 return self.iterations
             else:
                 # No relaxed constraints to penalize
                 # Or mismatch between multipliers and constraints
-                self.printOutput()
+                self.printOutput(i)
                 return m.status
         else:
             return m.status
