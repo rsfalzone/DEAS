@@ -41,7 +41,6 @@ class LagrangianRelaxation(object):
         self.cost_dict = cost_dict
         self.arc_vars = arc_vars
 
-
     def updateObj(self):
         penalty = LinExpr()
         for c in self.relaxedConstrs:
@@ -341,23 +340,21 @@ class LagrangianRelaxation(object):
                     f.write(": ".join([str(under_node), str(under_cap[time][under_node])])+ "\n")
         return model_cost
 
-
     def printOutput(self, i):
-        print("Results of Subgradient")
         if self.m.status == GRB.Status.OPTIMAL:
             print()
             print("GUROBI MODEL OUTPUT:")
             print('Penalized Objective Value: %g' % self.m.objVal)
             print("Real Objective Value: %g" % self.unrelaxedObj.getValue())
             print("Iterations of Subgradient Ascent: {}".format(i))
-            print("Movement Arcs:")
-            for var in self.arc_vars["Movement Arcs"]:
-                if self.arc_vars["Movement Arcs"][var].X > 0:
-                    print("{:<60s}| {:>8.0f}".format(str(var), self.arc_vars["Movement Arcs"][var].X))
-            print("\nStorage Room Arcs:")
-            for var in self.arc_vars["Storage Room Arcs"]:
-                if self.arc_vars["Storage Room Arcs"][var].X > 0:
-                    print("{:<60s}| {:>8.0f}".format(str(var), self.arc_vars["Storage Room Arcs"][var].X))
+            # print("Movement Arcs:")
+            # for var in self.arc_vars["Movement Arcs"]:
+            #     if self.arc_vars["Movement Arcs"][var].X > 0:
+            #         print("{:<60s}| {:>8.0f}".format(str(var), self.arc_vars["Movement Arcs"][var].X))
+            # print("\nStorage Room Arcs:")
+            # for var in self.arc_vars["Storage Room Arcs"]:
+            #     if self.arc_vars["Storage Room Arcs"][var].X > 0:
+            #         print("{:<60s}| {:>8.0f}".format(str(var), self.arc_vars["Storage Room Arcs"][var].X))
             print('\nAx-b:')
             for s in self.relaxedConstrs:
                 print(str(s) + ": " + str(self.relaxedConstrs[s].getValue()))
@@ -366,22 +363,25 @@ class LagrangianRelaxation(object):
 
     def subgradientAscent(self):
         sub_cost = []
-        greedy_cost = []
+        sub_cost_real = []
+        # greedy_cost = []
         self.updateObj()
         self.m.optimize()
+############################################################################### v
         self.printOutput(0)
+############################################################################### ^
         if self.m.status == GRB.Status.OPTIMAL:
             if any(self.relaxedConstrs) and (self.lagrangeMults.keys() == self.relaxedConstrs.keys()):
                 i = 1
                 while i < self.iterations:
-                    stepsize = math.sqrt(1/i)
+                    stepsize = math.sqrt(.01/i)
                     currLagrangeMults = {}  # Lagrange mults for the current iteration
                     dLagrangeMults = []     # Rate of change vector for Lagrange mults
                     for c in self.relaxedConstrs:
                         steepestAscent = self.relaxedConstrs[c].getValue()
                         currLagrangeMults[c] = max(self.lagrangeMults[c] + stepsize * steepestAscent, 0)
                         dLagrangeMults.append((currLagrangeMults[c] - self.lagrangeMults[c]) / stepsize)
-                    print(currLagrangeMults)
+                    print("norm(dLagrangeMults): " + str(norm(dLagrangeMults)))
                     if norm(dLagrangeMults) > 0 :
                         self.lagrangeMults = currLagrangeMults
                         self.updateObj()
@@ -389,13 +389,26 @@ class LagrangianRelaxation(object):
                         # print(linExpr2Str(self.unrelaxedObj))
                         self.m.optimize()
                         # cost_w_greedy = self.greedyAlgorithm(i)
-                        # sub_cost.append(self.unrelaxedObj.getValue())
+                        sub_cost.append(self.m.objVal)
+                        sub_cost_real.append(self.unrelaxedObj.getValue())
                         # greedy_cost.append(cost_w_greedy)
+############################################################################### v
                         self.printOutput(i)
+############################################################################### ^
                         i += 1
                     else:
                         self.iterations = i
-                # print(sub_cost)
+
+
+############################################################################### v
+                # print("\nL(lambda) for each iteration:")
+                # for x in range(len(sub_cost)):
+                #     print(sub_cost[x])
+                # print("\ncTx for each iteration:")
+                # for x in range(len(sub_cost_real)):
+                #     print(sub_cost_real[x])
+                self.printOutput(i)
+############################################################################### ^
                 # print(greedy_cost)
 
                 return self.iterations
