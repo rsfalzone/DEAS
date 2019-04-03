@@ -437,7 +437,7 @@ def main():
 
     m.write("model.lp")
 
-    lr = LagrangianRelaxation(m, iterations=50, relaxedConstrs=cap_constrs, commodityPriority=priority_list, cost_dict=cost_dict, arc_vars=arc_vars)
+    lr = LagrangianRelaxation(m, iterations=500, relaxedConstrs=cap_constrs, commodityPriority=priority_list, cost_dict=cost_dict, arc_vars=arc_vars)
     output = lr.subgradientAscent()
     # greedy_swap(cost_dict, arc_vars, cap_constrs, lr.m.objVal, priority_list)
     # print(output)
