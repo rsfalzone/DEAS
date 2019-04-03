@@ -73,6 +73,7 @@ def currentStateReader(filename):
     event_room_list = []
     item_list = []
     item_dict = {}
+    priority_dict = {}
     requirement_dict = {}
     for row in requirement_rows:
         if row[2] not in echelon_dict.values():
@@ -94,9 +95,12 @@ def currentStateReader(filename):
 
     for row in items_rows:
         if row[0] in item_list:
-            item_dict[row[0]] = float(row[1])
+            item_dict[row[0]] = (float(row[1]), float(row[2])
+            priority_dict[row[0]] = int(row[3])
 
-    return(inventory_dict, echelon_dict, event_room_list, item_dict, requirement_dict, total_inventory_dict, storage_cap_dict)
+    priority_list = sorted(priority_dict, key=lambda k: priority_dict[k])
+
+    return(inventory_dict, echelon_dict, event_room_list, item_dict, requirement_dict, total_inventory_dict, storage_cap_dict, priority_list)
 
 def costDataReader(filename):
     xl = pd.ExcelFile(filename)
@@ -152,7 +156,7 @@ def constructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDic
                                     event_req_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (qty, qty, 0)
                             if roomI in storageRoomList:
                                 for item in itemList:
-                                    ub = int(storage_cap_dict[roomI] / item_dict[item])
+                                    ub = int(storage_cap_dict[roomI] / item_dict[item[0]])
                                     storage_cap_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (0, ub, 0)
                     if ab == "b":
                         if echelon != len(echelon_dict.keys()):
@@ -213,7 +217,7 @@ def dataFramer(arcDict):
 def sup():
 
     cost_dict = costDataReader(excel_filename)
-    (inventory_dict, echelon_dict, event_room_list, item_list, requirement_dict, total_inventory_dict, storage_cap_dict) = currentStateReader(excel_filename)
+    (inventory_dict, echelon_dict, event_room_list, item_list, requirement_dict, total_inventory_dict, storage_cap_dict, priority_list) = currentStateReader(excel_filename)
     movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = constructor(echelon_dict, event_room_list, item_list, cost_dict, requirement_dict, inventory_dict, total_inventory_dict, storage_cap_dict)
     # arcDictWriter(movement_arc_dict, "MovementArcs.csv")
     # arcDictWriter(storage_cap_arc_dict, "StorageCapacityArcs.csv")
@@ -233,7 +237,7 @@ def sup():
     # print(len(echelon_dict.keys()))
     print("\a")
 
-    return(df_dict)
+    return(df_dict, cost_dict, priority_list)
 
 if __name__ == '__main__':
     import sys
