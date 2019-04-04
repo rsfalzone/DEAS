@@ -189,7 +189,7 @@ def dataFramer(arcDict):
     df = pd.DataFrame(arcList)
     return df
 
-def excelOutputWriter(solution):
+def excelOutputWriter(solution, echelon_dict):
     arcList = []
     arcList.append(["Time", "From Room", "To Room", "Commodity", "Amount"])
     for x in sorted(sorted(sorted(solution, key=lambda k: k[1][0]), key=lambda k: k[0][0]), key=lambda k: k[0][1]): ## Sort First by time, then by room???
@@ -198,7 +198,7 @@ def excelOutputWriter(solution):
             if solution[x] > 0:
                 # if tail[0] != head[0]:
                 print(str(x) + ": " + str(solution[x]))
-                arcList.append([tail[1], tail[0], head[0], commodity, solution[x]])
+                arcList.append(echelon_dict[[tail[1]], tail[0], head[0], commodity, solution[x]])
 
     book = load_workbook(excel_filename)
     df = pd.DataFrame(arcList)
