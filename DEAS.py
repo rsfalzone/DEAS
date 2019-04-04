@@ -21,7 +21,7 @@ def main():
     (data_frame_dict, cost_dict, priority_list, echelon_dict) = Transform.sup()
     print(data_frame_dict)
 
-    solution = MCNF.sup1()
+    solution = MCNF.sup1(xl_data, cost_dict, priority_list)
 
     # output crap
 
