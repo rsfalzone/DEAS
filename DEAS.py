@@ -1,5 +1,6 @@
 import pandas as pd
 import Transform
+import MCNF
 
 indent = "    "
 deas_xl = "DEAS_Equipment.xlsx"
@@ -20,7 +21,7 @@ def main():
     (data_frame_dict, cost_dict, priority_list, echelon_dict) = Transform.sup()
     print(data_frame_dict)
 
-    # MCNF.Main()
+    solution = MCNF.sup1()
 
     # output crap
 
@@ -31,7 +32,7 @@ def main():
     #     for row in xl_data[sheet].values.tolist():
     #         log_str += diagnosticStr(str(row))
 
-    Transform.excelOutputWriter(solution)
+    Transform.excelOutputWriter(solution, echelon_dict)
 
     log_str += diagnosticStr("\nDynamic Equipment Allocation System ended")
     log(log_str)
