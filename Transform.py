@@ -95,8 +95,9 @@ def currentStateReader(filename):
 
     for row in items_rows:
         if row[0] in item_list:
-            item_dict[row[0]] = (float(row[1]), float(row[2])
+            item_dict[row[0]] = (float(row[1]), float(row[2]))
             priority_dict[row[0]] = int(row[3])
+
 
     priority_list = sorted(priority_dict, key=lambda k: priority_dict[k])
 
@@ -127,19 +128,14 @@ def constructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDic
     #   event_req_arc_dict      All a to b event requirement arcs (givens)
     #   utility_arc_dict        All arcs originating at the s node or between t nodes (givens)
 
-    storageRoomList = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10",
-            "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20",
-            "S21", "S22", "S23", "S24", "S25", "S26", "S27", "S28", "S29", "S30",
-            "S31", "S32", "S33", "S34", "S35", "S36", "S37", "S38", "S39", "S40",
-            "S41", "S42", "S43", "S44", "S45", "S46", "S47", "S48", "S49", "S50",
-            "S51", "S52", "S53", "S54", "S55", "S56", "S57", "S58", "S59"]
+    storageRoomList = list(storage_cap_dict.keys())
     allRoomList = eventRoomList + storageRoomList
     #print(allRoomList)
     movement_arc_dict = {}
     storage_cap_arc_dict = {}
     event_req_arc_dict = {}
     utility_arc_dict = {}
-    itemList = item_dict.keys()
+    itemList = list(item_dict.keys())
 
     #Create general set of arcs for all time echelons other than the first and
     #last
@@ -156,7 +152,7 @@ def constructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDic
                                     event_req_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (qty, qty, 0)
                             if roomI in storageRoomList:
                                 for item in itemList:
-                                    ub = int(storage_cap_dict[roomI] / item_dict[item[0]])
+                                    ub = int(storage_cap_dict[roomI] / item_dict[item][0])
                                     storage_cap_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (0, ub, 0)
                     if ab == "b":
                         if echelon != len(echelon_dict.keys()):
@@ -213,6 +209,9 @@ def dataFramer(arcDict):
     # df.to_excel(writer, sheet_name=sheet_name, index=False, index_label=False, header=False)
     # writer.save()
     return df
+
+def main(args):
+    sup()
 
 def sup():
 
