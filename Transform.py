@@ -189,7 +189,7 @@ def dataFramer(arcDict):
     df = pd.DataFrame(arcList)
     return df
 
-def excelOutputWriter(solution)
+def excelOutputWriter(solution):
     arcList = []
     arcList.append(["Time", "From Room", "To Room", "Commodity", "Amount"])
     for x in sorted(sorted(sorted(solution, key=lambda k: k[1][0]), key=lambda k: k[0][0]), key=lambda k: k[0][1]): ## Sort First by time, then by room???
@@ -228,7 +228,7 @@ def sup():
     df_dict = {'movement': movement_arc_df, 'storage': storage_cap_arc_df, 'event': event_req_arc_df, 'utility': utility_arc_df}
     print("\a")
 
-    return(df_dict, cost_dict, priority_list)
+    return(df_dict, cost_dict, priority_list, echelon_dict)
 
 if __name__ == '__main__':
     import sys

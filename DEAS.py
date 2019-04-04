@@ -17,7 +17,7 @@ def main():
     log_str = diagnosticStr("Dynamic Equipment Allocation System started")
 
     print("Creating Arcs")
-    (data_frame_dict, cost_dict, priority_list) = Transform.sup()
+    (data_frame_dict, cost_dict, priority_list, echelon_dict) = Transform.sup()
     print(data_frame_dict)
 
     # MCNF.Main()
