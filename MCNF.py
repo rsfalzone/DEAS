@@ -438,7 +438,14 @@ def main():
     m.write("model.lp")
 
     lr = LagrangianRelaxation(m, iterations=500, relaxedConstrs=cap_constrs, commodityPriority=priority_list, cost_dict=cost_dict, arc_vars=arc_vars)
-    output = lr.subgradientAscent()
+    iterations, output = lr.subgradientAscent()
+    print(iterations)
+    solution = output[sorted(output)[0]]
+    for x in sorted(sorted(solution, key=lambda k: k[0][1]), key=lambda k: k[1][1]): ## Sort First by time, then by room???
+        tail, head, commodity = x
+        if tail[1] > 0 and head[0] != "t":
+            if solution[x] > 0:
+                print(str(x) + ": " + str(solution[x]))
     # greedy_swap(cost_dict, arc_vars, cap_constrs, lr.m.objVal, priority_list)
     # print(output)
 #

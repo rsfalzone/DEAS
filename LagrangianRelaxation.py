@@ -338,7 +338,7 @@ class LagrangianRelaxation(object):
             for time in under_cap:
                 for under_node in  under_cap[time]:
                     f.write(": ".join([str(under_node), str(under_cap[time][under_node])])+ "\n")
-        return model_cost
+        return (model_cost, movement_arcs_dict)
 
     def printOutput(self, i):
         if self.m.status == GRB.Status.OPTIMAL:
@@ -366,6 +366,7 @@ class LagrangianRelaxation(object):
         # sub_cost = [0]
         # sub_cost_real = []
         # greedy_cost = []
+        solutions = {}
         self.updateObj()
         # self.m.optimize()
         Lλ = 1
@@ -404,7 +405,8 @@ class LagrangianRelaxation(object):
                     # self.m.optimize()
                     # norms_diff_in_lag.append(norm(dLagrangeMults))
                     # sub_cost.append(self.m.objVal)
-                    # cost_w_greedy = self.greedyAlgorithm(i)
+                    cost_w_greedy, arc_vars = self.greedyAlgorithm(i)
+                    solutions[cost_w_greedy] = arc_vars
                     # sub_cost_real.append(self.unrelaxedObj.getValue())
                     # greedy_cost.append(cost_w_greedy)
 ############################################################################### v
@@ -430,7 +432,7 @@ class LagrangianRelaxation(object):
             self.printOutput(i)
 ############################################################################### ^
 
-            return self.iterations
+            return self.iterations, solutions
         else:
             # No relaxed constraints to penalize
             # Or mismatch between multipliers and constraints
