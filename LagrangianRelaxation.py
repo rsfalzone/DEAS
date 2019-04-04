@@ -362,60 +362,79 @@ class LagrangianRelaxation(object):
             print('No solution;', self.m.status)
 
     def subgradientAscent(self):
-        sub_cost = []
-        sub_cost_real = []
+        # norms_diff_in_lag = []
+        # sub_cost = [0]
+        # sub_cost_real = []
         # greedy_cost = []
         self.updateObj()
-        self.m.optimize()
+        # self.m.optimize()
+        Lλ = 1
+        α = True
 ############################################################################### v
-        self.printOutput(0)
+        # self.printOutput(0)
 ############################################################################### ^
-        if self.m.status == GRB.Status.OPTIMAL:
-            if any(self.relaxedConstrs) and (self.lagrangeMults.keys() == self.relaxedConstrs.keys()):
-                i = 1
-                while i < self.iterations:
-                    stepsize = math.sqrt(.01/i)
-                    currLagrangeMults = {}  # Lagrange mults for the current iteration
-                    dLagrangeMults = []     # Rate of change vector for Lagrange mults
+        # if self.m.status == GRB.Status.OPTIMAL:
+        if any(self.relaxedConstrs) and (self.lagrangeMults.keys() == self.relaxedConstrs.keys()):
+            i = 1
+            while i < self.iterations:
+                γ = math.sqrt(.001/i)
+                self.m.optimize()
+                # currLagrangeMults = {}  # Lagrange mults for the current iteration
+                # dLagrangeMults = []     # Rate of change vector for Lagrange mults
+                # print("Updated Lagrangian multipliers:")
+                # for c in self.relaxedConstrs:
+                #     steepestAscent = self.relaxedConstrs[c].getValue()
+                #     currLagrangeMults[c] = max(self.lagrangeMults[c] + γ * steepestAscent, 0)
+                #     dLagrangeMults.append((currLagrangeMults[c] - self.lagrangeMults[c]))# / γ)
+                #     print(str(c) + ": " + str(currLagrangeMults[c]))
+
+                # print("norm(dLagrangeMults): " + str(norm(dLagrangeMults)))
+                # if norm(dLagrangeMults) > 0.01 :
+
+                if abs((self.m.ObjVal - Lλ) / Lλ) > 0.001:
+                    print(abs(self.m.ObjVal - Lλ / Lλ))
+                    Lλ = self.m.ObjVal
                     for c in self.relaxedConstrs:
                         steepestAscent = self.relaxedConstrs[c].getValue()
-                        currLagrangeMults[c] = max(self.lagrangeMults[c] + stepsize * steepestAscent, 0)
-                        dLagrangeMults.append((currLagrangeMults[c] - self.lagrangeMults[c]) / stepsize)
-                    print("norm(dLagrangeMults): " + str(norm(dLagrangeMults)))
-                    if norm(dLagrangeMults) > 0 :
-                        self.lagrangeMults = currLagrangeMults
-                        self.updateObj()
-                        # print(linExpr2Str(self.m.getObjective()))
-                        # print(linExpr2Str(self.unrelaxedObj))
-                        self.m.optimize()
-                        # cost_w_greedy = self.greedyAlgorithm(i)
-                        sub_cost.append(self.m.objVal)
-                        sub_cost_real.append(self.unrelaxedObj.getValue())
-                        # greedy_cost.append(cost_w_greedy)
-############################################################################### v
-                        self.printOutput(i)
-############################################################################### ^
-                        i += 1
-                    else:
-                        self.iterations = i
+                        self.lagrangeMults[c] = max(self.lagrangeMults[c] + γ * steepestAscent, 0)
 
+                    self.updateObj()
+                    # print(linExpr2Str(self.m.getObjective()))
+                    # print(linExpr2Str(self.unrelaxedObj))
+                    # self.m.optimize()
+                    # norms_diff_in_lag.append(norm(dLagrangeMults))
+                    # sub_cost.append(self.m.objVal)
+                    # cost_w_greedy = self.greedyAlgorithm(i)
+                    # sub_cost_real.append(self.unrelaxedObj.getValue())
+                    # greedy_cost.append(cost_w_greedy)
+############################################################################### v
+                    self.printOutput(i)
+############################################################################### ^
+                    i += 1
+                else:
+                    self.iterations = i
 
 ############################################################################### v
-                # print("\nL(lambda) for each iteration:")
-                # for x in range(len(sub_cost)):
-                #     print(sub_cost[x])
-                # print("\ncTx for each iteration:")
-                # for x in range(len(sub_cost_real)):
-                #     print(sub_cost_real[x])
-                self.printOutput(i)
+            # print("\nnorms_diff_in_lag for each iteration:")
+            # for x in range(len(norms_diff_in_lag)):
+            #     print(norms_diff_in_lag[x])
+            # print("\nL(lambda) for each iteration:")
+            # for x in range(len(sub_cost)):
+            #     print(sub_cost[x])
+            # print("\ncTx for each iteration:")
+            # for x in range(len(sub_cost_real)):
+            #     print(sub_cost_real[x])
+            # print("\nGreedy Cost for each iteration:")
+            # for x in range(len(greedy_cost)):
+            #     print(greedy_cost[x])
+            self.printOutput(i)
 ############################################################################### ^
-                # print(greedy_cost)
 
-                return self.iterations
-            else:
-                # No relaxed constraints to penalize
-                # Or mismatch between multipliers and constraints
-                self.printOutput(i)
-                return m.status
+            return self.iterations
         else:
+            # No relaxed constraints to penalize
+            # Or mismatch between multipliers and constraints
+            self.printOutput(i)
             return m.status
+        # else:
+        #     return m.status
