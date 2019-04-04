@@ -137,6 +137,8 @@ def constructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDic
     utility_arc_dict = {}
     itemList = list(item_dict.keys())
 
+    print(allRoomList)
+
     #Create general set of arcs for all time echelons other than the first and
     #last
 
@@ -193,6 +195,22 @@ def arcDictWriter(arcDict, filename):
         writer.writerow(["Xi", "Yi", "Zi", "Xj", "Yj", "Zj", "Item", "Lij", "Uij", "Cij"])
         writer.writerows(arcList)
 
+def excelWriter(arcDict, sheet_name):
+    print("Writing " + sheet_name)
+    arcList = []
+    arcList.append(["Xi", "Yi", "Zi", "Xj", "Yj", "Zj", "Item", "Lij", "Uij", "Cij"])
+    for arc in arcDict.keys():
+        arcList.append([arc[0][0], arc[0][1], arc[0][2], arc[1][0], arc[1][1],
+            arc[1][2], arc[2], arcDict[arc][0], arcDict[arc][1], arcDict[arc][2]])
+
+    book = load_workbook(excel_filename)
+    df = pd.DataFrame(arcList)
+    writer = pd.ExcelWriter(excel_filename, engine='openpyxl')
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+    df.to_excel(writer, sheet_name=sheet_name, index=False, index_label=False, header=False)
+    writer.save()
+
 def dataFramer(arcDict):
     arcList = []
     arcList.append(["Xi", "Yi", "Zi", "Xj", "Yj", "Zj", "Item", "Lij", "Uij", "Cij"])
@@ -218,10 +236,10 @@ def sup():
     cost_dict = costDataReader(excel_filename)
     (inventory_dict, echelon_dict, event_room_list, item_list, requirement_dict, total_inventory_dict, storage_cap_dict, priority_list) = currentStateReader(excel_filename)
     movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = constructor(echelon_dict, event_room_list, item_list, cost_dict, requirement_dict, inventory_dict, total_inventory_dict, storage_cap_dict)
-    # arcDictWriter(movement_arc_dict, "MovementArcs.csv")
-    # arcDictWriter(storage_cap_arc_dict, "StorageCapacityArcs.csv")
-    # arcDictWriter(event_req_arc_dict, "EventRequirementArcs.csv")
-    # arcDictWriter(utility_arc_dict, "UtilityArcs.csv")
+    excelWriter(movement_arc_dict, "Movement Arcs")
+    excelWriter(storage_cap_arc_dict, "Storage Room Arcs")
+    excelWriter(event_req_arc_dict, "Event Room Arcs")
+    excelWriter(utility_arc_dict, "Utility Arcs")
     movement_arc_df = dataFramer(movement_arc_dict)
     storage_cap_arc_df = dataFramer(storage_cap_arc_dict)
     event_req_arc_df = dataFramer(event_req_arc_dict)
