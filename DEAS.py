@@ -16,7 +16,8 @@ def diagnosticStr(string):
 def main():
     log_str = diagnosticStr("Dynamic Equipment Allocation System started")
 
-    data_frame_dict = Transform.sup()
+    print("Creating Arcs")
+    (data_frame_dict, cost_dict, priority_list) = Transform.sup()
     print(data_frame_dict)
 
     # MCNF.Main()
@@ -29,6 +30,8 @@ def main():
     #     log_str += diagnosticStr("\n" + sheet + ":")
     #     for row in xl_data[sheet].values.tolist():
     #         log_str += diagnosticStr(str(row))
+
+    Transform.excelOutputWriter(solution)
 
     log_str += diagnosticStr("\nDynamic Equipment Allocation System ended")
     log(log_str)
