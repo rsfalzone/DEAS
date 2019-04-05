@@ -397,9 +397,9 @@ def sup1(xl_data, cost_dict, priority_list):
     # commodity_vols = {}
     # for row in xl_data["Commodities"].values.tolist():
     #     commodity_vols[row[0]] = row[2]
-    for c in [x[1] for x in commodity_vols]:
-        if c not in commodities:
-            del commodity_vols[c]
+    # for c in [x[1] for x in commodity_vols]:
+    #     if c not in commodities:
+    #         del commodity_vols[c]
 
 ###############################################################################
 # Flow Balance Constraints
@@ -434,7 +434,7 @@ def sup1(xl_data, cost_dict, priority_list):
                 tail, head, com = arc
                 if head == s and com == commodity:
                     # used_vol_s.add(arc_vars["Storage Room Arcs"][arc], commodity_vols[com])
-                    used_vol_s.add(arc_vars['storage'][arc], commodity_vols[com])
+                    used_vol_s.add(arc_vars['storage'][arc], commodity_vols[com][1])
         used_vol_s.add(-s_room_caps[s[0]])
         cap_constrs[s] = used_vol_s
 
