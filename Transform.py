@@ -6,6 +6,7 @@ import pandas as pd
 from openpyxl import load_workbook
 
 excel_filename = "DEAS_Equipment.xlsx"
+# excel_filename = "EquipmentInventory.xlsx"
 
 def currentStateReader():
 
@@ -152,7 +153,7 @@ def constructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDic
                                     event_req_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (qty, qty, 0)
                             if roomI in storageRoomList:
                                 for item in itemList:
-                                    ub = int(storage_cap_dict[roomI] / item_dict[item][0])
+                                    ub = int(storage_cap_dict[roomI] / item_dict[item][0]) ## MIGHT CHANGE WITH COMMODITY PAGE (UNITS/PARCEL)
                                     storage_cap_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (0, ub, 0)
                     if ab == "b":
                         if echelon != len(echelon_dict.keys()):
