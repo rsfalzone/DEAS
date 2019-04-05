@@ -66,9 +66,10 @@ def currentStateReader(filename):
     items_rows = items_df.values.tolist()
 
     for row in items_rows:
-        if row[0] in item_list:
-            item_dict[row[0]] = (float(row[1]), float(row[2]))
-            priority_dict[row[0]] = int(row[3])
+        if any(row):
+            if row[0] in item_list:
+                item_dict[row[0]] = (float(row[1]), float(row[2]))
+                priority_dict[row[0]] = int(row[3])
 
 
     priority_list = sorted(priority_dict, key=lambda k: priority_dict[k])
