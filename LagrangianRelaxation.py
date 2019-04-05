@@ -57,7 +57,7 @@ class LagrangianRelaxation(object):
         original_cost = self.unrelaxedObj.getValue()
         model_cost = original_cost
 
-        # movement_arcs_dict = {}
+        movement_arcs_dict = {}
         # for x in self.arc_vars["Movement Arcs"]:
         #     movement_arcs_dict[x] = self.arc_vars["Movement Arcs"][x].X
         for x in self.arc_vars["movement"]:
