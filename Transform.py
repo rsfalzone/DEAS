@@ -52,11 +52,9 @@ def currentStateReader():
     priority_dict = {}
     requirement_dict = {}
     for row in requirement_rows:
-        if row[2] not in echelon_dict.values():
-            echelon_dict[len(echelon_dict) + 1] = row[2]
-            echelon_dict_reverse[row[2]] = len(echelon_dict_reverse) + 1
-        if (row[1], echelon_dict_reverse[row[2]]) not in requirement_dict:
-            requirement_dict[(row[1], echelon_dict_reverse[row[2]])] = []
+        # if row[2] not in echelon_dict.values():
+        #     echelon_dict[len(echelon_dict) + 1] = row[2]
+        #     echelon_dict_reverse[row[2]] = len(echelon_dict_reverse) + 1
         if row[1] not in event_room_list:
             event_room_list.append(row[1])
         if row[6] not in item_list:
@@ -67,9 +65,11 @@ def currentStateReader():
             event_dict[row[0]][0].append(row[2])
             event_dict[row[0]][1].append(row[5])
 
-        requirement_dict[(row[1], echelon_dict_reverse[row[2]])].append((row[6], row[7]))
+        
 
     event_times_dict = {}
+    print("Event dict:")
+    print(event_dict)
     for event in event_dict:
         print(event)
         print(event_dict[event])
@@ -92,6 +92,44 @@ def currentStateReader():
     print(event_times_dict)
 
     print(super_event_dict)
+    event_requirement_dict = {}
+    sorted_super_events = sorted(super_event_dict, key=lambda k: super_event_dict[k][0])
+    for i in range(len(sorted_super_events)):
+        echelon_dict[i] = super_event_dict[sorted_super_events[i]][0]
+        echelon_dict_reverse[super_event_dict[sorted_super_events[i]][0]] = i
+        event_requirement_dict[sorted_super_events[i]] = []
+        print(i, len(sorted_super_events))
+        if i != len(sorted_super_events) - 1:  
+
+            for row in requirement_rows:
+                print(row[2], echelon_dict[i], echelon_dict[i+1])
+                if row[2] >= echelon_dict[i] and row[2] <= echelon_dict[i + 1]:
+                    event_requirement_dict[sorted_super_events[i]].append(row)
+        else:
+            for row in requirement_rows:
+                event_requirement_dict[sorted_super_events[i]].append(row)
+
+    print("event requirement dict:")
+    print(event_requirement_dict)
+
+    print("Echelon Dict:")
+    print(echelon_dict)
+
+    for event in event_requirement_dict:
+        for requirement in event_requirement_dict[event]:
+            event_start = super_event_dict[event][0]
+            event_end = super_event_dict[event][1]
+            if (requirement[1], echelon_dict_reverse[event_start]) not in requirement_dict:
+                requirement_dict[(requirement[1], echelon_dict_reverse[event_start])] = []
+            requirement_dict[(requirement[1], echelon_dict_reverse[event_start])].append((row[6], row[7]))
+
+    print("\nrequirement dict:")
+    print(requirement_dict)
+
+    # for row in requirement_rows:
+    #     if (row[1], echelon_dict_reverse[row[2]]) not in requirement_dict:
+    #         requirement_dict[(row[1], echelon_dict_reverse[row[2]])] = []
+    #     requirement_dict[(row[1], echelon_dict_reverse[row[2]])].append((row[6], row[7]))
 
     xl = pd.ExcelFile(excel_filename)
     items_df = xl.parse("Commodities")
