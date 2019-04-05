@@ -5,13 +5,13 @@ import datetime
 import pandas as pd
 from openpyxl import load_workbook
 
-excel_filename = "EquipmentInventory.xlsx"
+excel_filename = "DEAS_Equipment.xlsx"
 
-def currentStateReader(filename):
+def currentStateReader():
 
     #Read in current inventory levels for storage
 
-    xl = pd.ExcelFile(filename)
+    xl = pd.ExcelFile(excel_filename)
     inventory_df = xl.parse("Inventory by Room")
     inventory_rows = inventory_df.values.tolist()
 
@@ -26,7 +26,7 @@ def currentStateReader(filename):
         else:
             total_inventory_dict[commodity] = inventory_dict[(room, commodity)]
 
-    xl = pd.ExcelFile(filename)
+    xl = pd.ExcelFile(excel_filename)
     storage_df = xl.parse("Storage Rooms")
     storage_rows = storage_df.values.tolist()
 
@@ -38,10 +38,11 @@ def currentStateReader(filename):
     #Notes:
     #   Echelons are based on set up start times
 
-    xl = pd.ExcelFile(filename)
+    xl = pd.ExcelFile(excel_filename)
     requirement_df = xl.parse("Event Requirements")
     requirement_rows = requirement_df.values.tolist()
 
+    event_dict = {}
     echelon_dict = {}
     echelon_dict_reverse = {}
     event_room_list = []
@@ -59,9 +60,39 @@ def currentStateReader(filename):
             event_room_list.append(row[1])
         if row[6] not in item_list:
             item_list.append(row[6])
+        if row[0] not in event_dict.keys():
+            event_dict[row[0]] = ([row[2]], [row[5]])
+        else:
+            event_dict[row[0]][0].append(row[2])
+            event_dict[row[0]][1].append(row[5])
+
         requirement_dict[(row[1], echelon_dict_reverse[row[2]])].append((row[6], row[7]))
 
-    xl = pd.ExcelFile(filename)
+    event_times_dict = {}
+    for event in event_dict:
+        print(event)
+        print(event_dict[event])
+        earliest_setup = sorted(event_dict[event][0])[0]
+        latest_end = sorted(event_dict[event][1])[-1]
+        event_times_dict[event] = (earliest_setup, latest_end)
+
+    sorted_events = sorted(event_times_dict, key=lambda k: event_times_dict[k][0])
+    super_event_dict = {}
+    print(sorted_events)
+    for i in range (len(sorted_events) - 1):
+        event = sorted_events[i]
+        next_event = sorted_events[i + 1]
+        if event_times_dict[event][1] < event_times_dict[next_event][0]:
+            super_event_dict[event] = event_times_dict[event]
+        else:
+            conglomerate_name = event + ' and ' + next_event
+            super_event_dict[conglomerate_name] = (event_times_dict[event][0], max(event_times_dict[next_event][0], event_times_dict[next_event][1]))
+
+    print(event_times_dict)
+
+    print(super_event_dict)
+
+    xl = pd.ExcelFile(excel_filename)
     items_df = xl.parse("Commodities")
     items_rows = items_df.values.tolist()
 
@@ -74,10 +105,10 @@ def currentStateReader(filename):
 
     priority_list = sorted(priority_dict, key=lambda k: priority_dict[k])
 
-    return(inventory_dict, echelon_dict, event_room_list, item_dict, requirement_dict, total_inventory_dict, storage_cap_dict, priority_list)
+    return(inventory_dict, echelon_dict, event_room_list, item_dict, requirement_dict, total_inventory_dict, storage_cap_dict, priority_list, super_event_dict)
 
-def costDataReader(filename):
-    xl = pd.ExcelFile(filename)
+def costDataReader():
+    xl = pd.ExcelFile(excel_filename)
     df = xl.parse("Cost Data", header=None)
     rows = df.values.tolist()
     cost_dict = {}
@@ -210,12 +241,12 @@ def excelOutputWriter(solution, echelon_dict):
 
 
 def main(args):
-    sup()
-
+    #sup()
+    currentStateReader()
 def sup():
 
-    cost_dict = costDataReader(excel_filename)
-    (inventory_dict, echelon_dict, event_room_list, item_dict, requirement_dict, total_inventory_dict, storage_cap_dict, priority_list) = currentStateReader(excel_filename)
+    cost_dict = costDataReader()
+    (inventory_dict, echelon_dict, event_room_list, item_dict, requirement_dict, total_inventory_dict, storage_cap_dict, priority_list, super_event_dict) = currentStateReader()
     movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = constructor(echelon_dict, event_room_list, item_dict, cost_dict, requirement_dict, inventory_dict, total_inventory_dict, storage_cap_dict)
     # excelWriter(movement_arc_dict, "Movement Arcs")
     # excelWriter(storage_cap_arc_dict, "Storage Room Arcs")
