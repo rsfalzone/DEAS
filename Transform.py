@@ -102,17 +102,28 @@ def currentStateReader():
         echelon_dict_reverse[super_event_dict[sorted_super_events[i]][0]] = i
         event_requirement_dict[sorted_super_events[i]] = []
 
+    print('\nreq rows:')
+    print(requirement_rows)
+
     for i in range(len(sorted_super_events)):
         if i != len(sorted_super_events) - 1:  
+            print('\n')
+            print(sorted_super_events[i])
             for row in requirement_rows:
-                if row[2] >= echelon_dict[i] and row[2] <= echelon_dict[i + 1]:
+                print('\n')
+                print(row)
+                print(echelon_dict[i], echelon_dict[i + 1])
+                if row[2] >= echelon_dict[i] and row[2] < echelon_dict[i + 1]:
                     event_requirement_dict[sorted_super_events[i]].append(row)
+                    print("added")
         else:
             for row in requirement_rows:
-                event_requirement_dict[sorted_super_events[i]].append(row)
+                if row[2] >= echelon_dict[i]:
+                    event_requirement_dict[sorted_super_events[i]].append(row)
+                    print('added')
 
-    # print("event requirement dict:")
-    # print(event_requirement_dict)
+    print("event requirement dict:")
+    print(event_requirement_dict)
 
     print("Echelon Dict:")
     print(echelon_dict)
@@ -123,10 +134,31 @@ def currentStateReader():
             event_end = super_event_dict[event][1]
             if (requirement[1], echelon_dict_reverse[event_start]) not in requirement_dict:
                 requirement_dict[(requirement[1], echelon_dict_reverse[event_start])] = []
-            requirement_dict[(requirement[1], echelon_dict_reverse[event_start])].append((row[6], row[7]))
+            requirement_dict[(requirement[1], echelon_dict_reverse[event_start])].append((requirement[6], requirement[7]))
 
     print("\nrequirement dict:")
     print(requirement_dict)
+
+    new_requirement_dict = {}
+    for (room, echelon) in requirement_dict:
+        commodity_list = []
+        new_requirement_dict[(room, echelon)] = []
+        for req in requirement_dict[(room, echelon)]:
+            if req[0] not in commodity_list:
+                commodity_list.append(req[0])
+        for commodity in commodity_list:
+            commodity_max = 0
+            for req in requirement_dict[(room, echelon)]:
+                if req[0] == commodity:
+                    if req[1] > commodity_max:
+                        commodity_max = req[1]
+            new_requirement_dict[(room, echelon)].append([commodity, commodity_max])
+
+    requirement_dict = new_requirement_dict
+
+    print('\nNew req dict:')
+    print(new_requirement_dict)
+
 
     # for row in requirement_rows:
     #     if (row[1], echelon_dict_reverse[row[2]]) not in requirement_dict:
