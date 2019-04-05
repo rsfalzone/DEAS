@@ -198,7 +198,7 @@ def excelOutputWriter(solution, echelon_dict):
             if solution[x] > 0:
                 if tail[0] != head[0]:
                     print(str(x) + ": " + str(solution[x]))
-                    arcList.append([echelon_dict[tail[1]], tail[0], head[0], commodity, solution[x]])
+                    arcList.append([echelon_dict[(tail[1] + 1)], tail[0], head[0], commodity, solution[x]])
 
     book = load_workbook(excel_filename)
     df = pd.DataFrame(arcList)
