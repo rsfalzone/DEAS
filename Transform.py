@@ -68,16 +68,16 @@ def currentStateReader():
         
 
     event_times_dict = {}
-    print("Event dict:")
-    print(event_dict)
+    # print("Event dict:")
+    # print(event_dict)
     for event in event_dict:
         earliest_setup = sorted(event_dict[event][0])[0]
         latest_end = sorted(event_dict[event][1])[-1]
         event_times_dict[event] = (earliest_setup, latest_end)
 
     sorted_events = sorted(event_times_dict, key=lambda k: event_times_dict[k][0])
-    print("\nsorted events:")
-    print(sorted_events)
+    # print("\nsorted events:")
+    # print(sorted_events)
 
     super_event_dict = {}
     i = 0
@@ -93,8 +93,9 @@ def currentStateReader():
             i += 2
 
 
-    print("\nsuper event dict:")
-    print(super_event_dict)
+    # print("\nsuper event dict:")
+    # print(super_event_dict)
+
     event_requirement_dict = {}
     sorted_super_events = sorted(super_event_dict, key=lambda k: super_event_dict[k][0])
     for i in range(len(sorted_super_events)):
@@ -102,31 +103,31 @@ def currentStateReader():
         echelon_dict_reverse[super_event_dict[sorted_super_events[i]][0]] = i
         event_requirement_dict[sorted_super_events[i]] = []
 
-    print('\nreq rows:')
-    print(requirement_rows)
+    # print('\nreq rows:')
+    # print(requirement_rows)
 
     for i in range(len(sorted_super_events)):
         if i != len(sorted_super_events) - 1:  
-            print('\n')
-            print(sorted_super_events[i])
+            # print('\n')
+            # print(sorted_super_events[i])
             for row in requirement_rows:
-                print('\n')
-                print(row)
-                print(echelon_dict[i], echelon_dict[i + 1])
+                # print('\n')
+                # print(row)
+                # print(echelon_dict[i], echelon_dict[i + 1])
                 if row[2] >= echelon_dict[i] and row[2] < echelon_dict[i + 1]:
                     event_requirement_dict[sorted_super_events[i]].append(row)
-                    print("added")
+                    # print("added")
         else:
             for row in requirement_rows:
                 if row[2] >= echelon_dict[i]:
                     event_requirement_dict[sorted_super_events[i]].append(row)
-                    print('added')
+                    # print('added')
 
-    print("event requirement dict:")
-    print(event_requirement_dict)
+    # print("event requirement dict:")
+    # print(event_requirement_dict)
 
-    print("Echelon Dict:")
-    print(echelon_dict)
+    # print("Echelon Dict:")
+    # print(echelon_dict)
 
     for event in event_requirement_dict:
         for requirement in event_requirement_dict[event]:
@@ -136,8 +137,8 @@ def currentStateReader():
                 requirement_dict[(requirement[1], echelon_dict_reverse[event_start])] = []
             requirement_dict[(requirement[1], echelon_dict_reverse[event_start])].append((requirement[6], requirement[7]))
 
-    print("\nrequirement dict:")
-    print(requirement_dict)
+    # print("\nrequirement dict:")
+    # print(requirement_dict)
 
     new_requirement_dict = {}
     for (room, echelon) in requirement_dict:
@@ -156,8 +157,8 @@ def currentStateReader():
 
     requirement_dict = new_requirement_dict
 
-    print('\nNew req dict:')
-    print(new_requirement_dict)
+    print('\nreq dict:')
+    print(requirement_dict)
 
 
     # for row in requirement_rows:
