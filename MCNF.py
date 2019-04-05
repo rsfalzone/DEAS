@@ -354,14 +354,13 @@ def sup1(xl_data, cost_dict, priority_list):
     m = Model("m")
     m.setParam( 'OutputFlag', False )
 
-
     arc_vars = {}
     time_echelons = []
     e_rooms = []
     s_rooms = []
     commodities = []
     name_format = "(({}, {}, {}), ({}, {}, {}), {})"
-    for arc_sheet in ["Movement Arcs", "Storage Room Arcs", "Event Room Arcs", "Utility Arcs"]:
+    for arc_sheet in ['movement','storage', 'event', 'utility']:
         time_echelons += [t for t in xl_data[arc_sheet].Yi.unique() if t not in time_echelons]
         time_echelons += [t for t in xl_data[arc_sheet].Yj.unique() if t not in time_echelons]
         e_rooms += [r for r in xl_data[arc_sheet].Xi.unique() if r[0] != "S" and r != "t" and r not in e_rooms]
@@ -389,14 +388,16 @@ def sup1(xl_data, cost_dict, priority_list):
     rooms = e_rooms + s_rooms
     capped_nodes = [(s, t, "b") for s in s_rooms for t in time_echelons[1:-1]]
 
-    s_room_caps = {}
-    for row in xl_data["Storage Rooms"].values.tolist():
-        s_room_caps[row[0]] = row[3]
+    s_room_caps = xl_data["storage_rooms"]
+    # s_room_caps = {}
+    # for row in xl_data["Storage Rooms"].values.tolist():
+    #     s_room_caps[row[0]] = row[3]
 
-    commodity_vols = {}
-    for row in xl_data["Commodities"].values.tolist():
-        commodity_vols[row[0]] = row[2]
-    for c in [x for x in commodity_vols]:
+    commodity_vols = xl_data["commodities"]
+    # commodity_vols = {}
+    # for row in xl_data["Commodities"].values.tolist():
+    #     commodity_vols[row[0]] = row[2]
+    for c in [x[1] for x in commodity_vols]:
         if c not in commodities:
             del commodity_vols[c]
 
@@ -429,10 +430,11 @@ def sup1(xl_data, cost_dict, priority_list):
     for s in capped_nodes:
         used_vol_s = LinExpr()
         for commodity in commodity_vols: ## NOT NEEDED?
-            for arc in arc_vars["Storage Room Arcs"]:
+            for arc in arc_vars['storage']: #"Storage Room Arcs"]:
                 tail, head, com = arc
                 if head == s and com == commodity:
-                    used_vol_s.add(arc_vars["Storage Room Arcs"][arc], commodity_vols[com])
+                    # used_vol_s.add(arc_vars["Storage Room Arcs"][arc], commodity_vols[com])
+                    used_vol_s.add(arc_vars['storage'][arc], commodity_vols[com])
         used_vol_s.add(-s_room_caps[s[0]])
         cap_constrs[s] = used_vol_s
 
