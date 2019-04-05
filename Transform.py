@@ -215,8 +215,8 @@ def main(args):
 def sup():
 
     cost_dict = costDataReader(excel_filename)
-    (inventory_dict, echelon_dict, event_room_list, item_list, requirement_dict, total_inventory_dict, storage_cap_dict, priority_list) = currentStateReader(excel_filename)
-    movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = constructor(echelon_dict, event_room_list, item_list, cost_dict, requirement_dict, inventory_dict, total_inventory_dict, storage_cap_dict)
+    (inventory_dict, echelon_dict, event_room_list, item_dict, requirement_dict, total_inventory_dict, storage_cap_dict, priority_list) = currentStateReader(excel_filename)
+    movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = constructor(echelon_dict, event_room_list, item_dict, cost_dict, requirement_dict, inventory_dict, total_inventory_dict, storage_cap_dict)
     # excelWriter(movement_arc_dict, "Movement Arcs")
     # excelWriter(storage_cap_arc_dict, "Storage Room Arcs")
     # excelWriter(event_req_arc_dict, "Event Room Arcs")
@@ -225,7 +225,7 @@ def sup():
     storage_cap_arc_df = dataFramer(storage_cap_arc_dict)
     event_req_arc_df = dataFramer(event_req_arc_dict)
     utility_arc_df = dataFramer(utility_arc_dict)
-    df_dict = {'movement': movement_arc_df, 'storage': storage_cap_arc_df, 'event': event_req_arc_df, 'utility': utility_arc_df}
+    df_dict = {'movement': movement_arc_df, 'storage': storage_cap_arc_df, 'event': event_req_arc_df, 'utility': utility_arc_df, 'storage_rooms': storage_cap_dict, 'commodities': item_dict}
     print("\a")
 
     return(df_dict, cost_dict, priority_list, echelon_dict)
