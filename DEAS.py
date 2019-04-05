@@ -21,16 +21,43 @@ def main():
     (data_frame_dict, cost_dict, priority_list, echelon_dict) = Transform.sup()
     print(data_frame_dict)
 
-    solution = MCNF.sup1(data_frame_dict, cost_dict, priority_list)
+    outerSolution = MCNF.sup1(data_frame_dict, cost_dict, priority_list)
+    solution = outerSolution
 
-    # output crap
+    start_state = {}
+    end_state = {}
+    for x in solution:
+        if x[0][1] == 0:
+            start_state[x] = solution[x]
+        if x[0][1] == 1:
+            end_state[x] = solution[x]
 
-    # xl_data = pd.read_excel(deas_xl, sheet_name=None)
-    # log_str += diagnosticStr(1*indent + deas_xl + ":")
-    # for sheet in xl_data:
-    #     log_str += diagnosticStr("\n" + sheet + ":")
-    #     for row in xl_data[sheet].values.tolist():
-    #         log_str += diagnosticStr(str(row))
+    utility = {}
+    for arc in start_state:
+        _, head, com = arc
+        room, _, _ = head
+        utility[("s", 0, "a"), (room, 0, "b"), com] = start_state[arc]
+
+
+    LAST_TIME_ECHELON = 10
+    mvnt = {}
+    for arc in end_state:
+        tail, head, com = arc
+        room, _, _ = head
+        mvnt[(room, LAST_TIME_ECHELON, "b"), ("t", LAST_TIME_ECHELON + 1, "a"), com] = end_state[arc]
+
+    print()
+    print("Utility")
+    for x in utility:
+        print(str(x) + ": " + str(utility[x]))
+
+    print()
+    print("MVNT")
+    for x in mvnt:
+        print(str(x) + ": " + str(mvnt[x]))
+    print()
+
+
 
     Transform.excelOutputWriter(solution, echelon_dict)
 
