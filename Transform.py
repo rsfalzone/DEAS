@@ -9,7 +9,6 @@ excel_filename = "DEAS_Equipment.xlsx"
 # excel_filename = "EquipmentInventory.xlsx"
 
 def currentStateReader():
-
     #Read in current inventory levels for storage
 
     xl = pd.ExcelFile(excel_filename)
@@ -65,7 +64,7 @@ def currentStateReader():
             event_dict[row[0]][0].append(row[2])
             event_dict[row[0]][1].append(row[5])
 
-        
+
 
     event_times_dict = {}
     # print("Event dict:")
@@ -107,7 +106,7 @@ def currentStateReader():
     # print(requirement_rows)
 
     for i in range(len(sorted_super_events)):
-        if i != len(sorted_super_events) - 1:  
+        if i != len(sorted_super_events) - 1:
             # print('\n')
             # print(sorted_super_events[i])
             for row in requirement_rows:
@@ -227,6 +226,8 @@ def constructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDic
                             if roomI in storageRoomList:
                                 for item in itemList:
                                     ub = int(storage_cap_dict[roomI] / item_dict[item][0]) ## MIGHT CHANGE WITH COMMODITY PAGE (UNITS/PARCEL)
+                                    # item_vol = item_dict[item][1] / item_dict[item][0]
+                                    # ub = int(storage_cap_dict[roomI] / item_vol)
                                     storage_cap_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (0, ub, 0)
                     if ab == "b":
                         if echelon != len(echelon_dict.keys()):
