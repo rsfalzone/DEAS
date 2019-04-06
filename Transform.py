@@ -52,11 +52,9 @@ def currentStateReader():
     priority_dict = {}
     requirement_dict = {}
     for row in requirement_rows:
-        if row[2] not in echelon_dict.values():
-            echelon_dict[len(echelon_dict) + 1] = row[2]
-            echelon_dict_reverse[row[2]] = len(echelon_dict_reverse) + 1
-        if (row[1], echelon_dict_reverse[row[2]]) not in requirement_dict:
-            requirement_dict[(row[1], echelon_dict_reverse[row[2]])] = []
+        # if row[2] not in echelon_dict.values():
+        #     echelon_dict[len(echelon_dict) + 1] = row[2]
+        #     echelon_dict_reverse[row[2]] = len(echelon_dict_reverse) + 1
         if row[1] not in event_room_list:
             event_room_list.append(row[1])
         if row[6] not in item_list:
@@ -67,31 +65,106 @@ def currentStateReader():
             event_dict[row[0]][0].append(row[2])
             event_dict[row[0]][1].append(row[5])
 
-        requirement_dict[(row[1], echelon_dict_reverse[row[2]])].append((row[6], row[7]))
+        
 
     event_times_dict = {}
+    # print("Event dict:")
+    # print(event_dict)
     for event in event_dict:
-        print(event)
-        print(event_dict[event])
         earliest_setup = sorted(event_dict[event][0])[0]
         latest_end = sorted(event_dict[event][1])[-1]
         event_times_dict[event] = (earliest_setup, latest_end)
 
     sorted_events = sorted(event_times_dict, key=lambda k: event_times_dict[k][0])
+    # print("\nsorted events:")
+    # print(sorted_events)
+
     super_event_dict = {}
-    print(sorted_events)
-    for i in range (len(sorted_events) - 1):
+    i = 0
+    while i < (len(sorted_events) - 1):
         event = sorted_events[i]
         next_event = sorted_events[i + 1]
         if event_times_dict[event][1] < event_times_dict[next_event][0]:
             super_event_dict[event] = event_times_dict[event]
+            i += 1
         else:
             conglomerate_name = event + ' and ' + next_event
             super_event_dict[conglomerate_name] = (event_times_dict[event][0], max(event_times_dict[next_event][0], event_times_dict[next_event][1]))
+            i += 2
 
-    print(event_times_dict)
 
-    print(super_event_dict)
+    # print("\nsuper event dict:")
+    # print(super_event_dict)
+
+    event_requirement_dict = {}
+    sorted_super_events = sorted(super_event_dict, key=lambda k: super_event_dict[k][0])
+    for i in range(len(sorted_super_events)):
+        echelon_dict[i] = super_event_dict[sorted_super_events[i]][0]
+        echelon_dict_reverse[super_event_dict[sorted_super_events[i]][0]] = i
+        event_requirement_dict[sorted_super_events[i]] = []
+
+    # print('\nreq rows:')
+    # print(requirement_rows)
+
+    for i in range(len(sorted_super_events)):
+        if i != len(sorted_super_events) - 1:  
+            # print('\n')
+            # print(sorted_super_events[i])
+            for row in requirement_rows:
+                # print('\n')
+                # print(row)
+                # print(echelon_dict[i], echelon_dict[i + 1])
+                if row[2] >= echelon_dict[i] and row[2] < echelon_dict[i + 1]:
+                    event_requirement_dict[sorted_super_events[i]].append(row)
+                    # print("added")
+        else:
+            for row in requirement_rows:
+                if row[2] >= echelon_dict[i]:
+                    event_requirement_dict[sorted_super_events[i]].append(row)
+                    # print('added')
+
+    # print("event requirement dict:")
+    # print(event_requirement_dict)
+
+    # print("Echelon Dict:")
+    # print(echelon_dict)
+
+    for event in event_requirement_dict:
+        for requirement in event_requirement_dict[event]:
+            event_start = super_event_dict[event][0]
+            event_end = super_event_dict[event][1]
+            if (requirement[1], echelon_dict_reverse[event_start]) not in requirement_dict:
+                requirement_dict[(requirement[1], echelon_dict_reverse[event_start])] = []
+            requirement_dict[(requirement[1], echelon_dict_reverse[event_start])].append((requirement[6], requirement[7]))
+
+    # print("\nrequirement dict:")
+    # print(requirement_dict)
+
+    new_requirement_dict = {}
+    for (room, echelon) in requirement_dict:
+        commodity_list = []
+        new_requirement_dict[(room, echelon)] = []
+        for req in requirement_dict[(room, echelon)]:
+            if req[0] not in commodity_list:
+                commodity_list.append(req[0])
+        for commodity in commodity_list:
+            commodity_max = 0
+            for req in requirement_dict[(room, echelon)]:
+                if req[0] == commodity:
+                    if req[1] > commodity_max:
+                        commodity_max = req[1]
+            new_requirement_dict[(room, echelon)].append([commodity, commodity_max])
+
+    requirement_dict = new_requirement_dict
+
+    print('\nreq dict:')
+    print(requirement_dict)
+
+
+    # for row in requirement_rows:
+    #     if (row[1], echelon_dict_reverse[row[2]]) not in requirement_dict:
+    #         requirement_dict[(row[1], echelon_dict_reverse[row[2]])] = []
+    #     requirement_dict[(row[1], echelon_dict_reverse[row[2]])].append((row[6], row[7]))
 
     xl = pd.ExcelFile(excel_filename)
     items_df = xl.parse("Commodities")
