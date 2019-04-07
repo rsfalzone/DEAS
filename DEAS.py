@@ -19,7 +19,9 @@ def main():
 
     print("Creating Arcs")
     (data_frame_dict, cost_dict, priority_list, echelon_dict) = Transform.sup()
-    print(data_frame_dict)
+    # print(data_frame_dict)
+    df = data_frame_dict["event"]
+    print(df.to_string())
 
 
     outerSolution = MCNF.sup1(data_frame_dict, cost_dict, priority_list)
@@ -27,42 +29,26 @@ def main():
 
     start_state = {}
     end_state = {}
-    for x in sorted(solution, key=lambda k: k[0][1]):
-        if x[0][1] == 0:
-            start_state[x] = solution[x]
-        elif x[0][1] == 1:
-            end_state[x] = solution[x]
-
-    utility = {}
-    for arc in start_state:
-        _, (room, _, _), com = arc
-        if (("s", 0, "a"), (room, 0, "b"), com) in utility:
-            utility[(("s", 0, "a"), (room, 0, "b"), com)] += start_state[arc]
-        else:
-            utility[(("s", 0, "a"), (room, 0, "b"), com)] = start_state[arc]
-
-
-    LAST_TIME_ECHELON = "LAST ECHELON FROM INNER"
-    mvnt = {}
-    for arc in end_state:
-        tail, head, com = arc
-        room, _, _ = head
-        if ((room, "Second to " +LAST_TIME_ECHELON, "b"), ("t", LAST_TIME_ECHELON , "a"), com) in mvnt:
-            mvnt[((room, "Second to " +LAST_TIME_ECHELON, "b"), ("t", LAST_TIME_ECHELON, "a"), com)] += end_state[arc]
-        else:
-            mvnt[((room, "Second to " +LAST_TIME_ECHELON, "b"), ("t", LAST_TIME_ECHELON, "a"), com)] = end_state[arc]
-
-
-    print()
-    print("Utility")
-    for x in utility:
-        print(str(x) + ": " + str(utility[x]))
-
-    print()
-    print("MVNT")
-    for x in mvnt:
-        print(str(x) + ": " + str(mvnt[x]))
-
+    for tail, head, com in sorted(solution, key=lambda k: k[0][1]):
+        echelon = tail[1]
+        if echelon == 0:
+            room = head[0]
+            if room in start_state:
+                if com in start_state[room]:
+                    start_state[room][com] += solution[(tail, head, com)]
+                else:
+                    start_state[room][com] = solution[(tail, head, com)]
+            else:
+                start_state[room] = {com:solution[(tail, head, com)]}
+        elif echelon == 1:
+            room = head[0]
+            if room in end_state:
+                if com in end_state[room]:
+                    end_state[room][com] += solution[(tail, head, com)]
+                else:
+                    end_state[room][com] = solution[(tail, head, com)]
+            else:
+                end_state[room] = {com:solution[(tail, head, com)]}
 
     print()
     print("To Excel")
