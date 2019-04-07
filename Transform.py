@@ -5,8 +5,8 @@ import datetime
 import pandas as pd
 from openpyxl import load_workbook
 
-excel_filename = "DEAS_Equipment.xlsx"
-# excel_filename = "EquipmentInventory.xlsx"
+# excel_filename = "DEAS_Equipment.xlsx"
+excel_filename = "EquipmentInventory.xlsx"
 
 def excelReader():
     '''Read in relevant data from Excel'''
@@ -111,7 +111,7 @@ def excelReader():
 
     return (inventory_dict, total_inventory_dict, storage_cap_dict, cost_dict, requirement_rows, event_room_list, event_dict, echelon_dict, item_dict, priority_list)
 
-def outer(event_dict, requirement_rows):
+def outer(event_dict, requirement_rows, total_inventory_dict):
     event_times_dict = {}
     for event in event_dict:
         earliest_setup = min(event_dict[event][0])
@@ -155,6 +155,7 @@ def outer(event_dict, requirement_rows):
                 i = len(sorted_super_events)
             i += 1
 
+    equip_counter = {com:0 for com in total_inventory_dict}
     requirement_dict  = {}
     for sEvent in event_requirement_dict:
         event_start = super_event_dict[sEvent][0]
@@ -163,13 +164,21 @@ def outer(event_dict, requirement_rows):
             room = requirement[1]
             commodity = requirement[6]
             quantity = requirement[7]
+            total_of_item = total_inventory_dict[commodity]
+            counter = equip_counter[commodity]
+            availible = total_of_item - counter
+            qty = min(quantity, availible)
             if (room, echelon_dict_reverse[event_start]) in requirement_dict:
                 if commodity in requirement_dict[(room, echelon_dict_reverse[event_start])]:
-                    requirement_dict[(room, echelon_dict_reverse[event_start])][commodity] = max(quantity, requirement_dict[(room, echelon_dict_reverse[event_start])][commodity])
+                    requirement_dict[(room, echelon_dict_reverse[event_start])][commodity] = max(qty, requirement_dict[(room, echelon_dict_reverse[event_start])][commodity])
+                    equip_counter[commodity] -= requirement_dict[(room, echelon_dict_reverse[event_start])][commodity]
+                    equip_counter[commodity] += max(qty, requirement_dict[(room, echelon_dict_reverse[event_start])][commodity])
                 else:
-                    requirement_dict[(room, echelon_dict_reverse[event_start])][commodity] = quantity
+                    requirement_dict[(room, echelon_dict_reverse[event_start])][commodity] = qty
+                    equip_counter[commodity] += qty
             else:
-                requirement_dict[(room, echelon_dict_reverse[event_start])] = {commodity: quantity}
+                requirement_dict[(room, echelon_dict_reverse[event_start])] = {commodity: qty}
+                equip_counter[commodity] += qty
     return echelon_dict, requirement_dict
 
 def inner(start, end, requirement_rows):
@@ -413,7 +422,7 @@ def main(args):
 
 def sup():
     (inventory_dict, total_inventory_dict, storage_cap_dict, cost_dict, requirement_rows, event_room_list, event_dict, echelon_dict, item_dict, priority_list) = excelReader()
-    echelon_dict, requirement_dict = outer(event_dict, requirement_rows)
+    echelon_dict, requirement_dict = outer(event_dict, requirement_rows, total_inventory_dict)
     movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = outerConstructor(echelon_dict, event_room_list, item_dict, cost_dict, requirement_dict, inventory_dict, total_inventory_dict, storage_cap_dict)
     movement_arc_df = dataFramer(movement_arc_dict)
     storage_cap_arc_df = dataFramer(storage_cap_arc_dict)

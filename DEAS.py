@@ -21,7 +21,9 @@ def main():
     (data_frame_dict, cost_dict, priority_list, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict) = Transform.sup()
     # print(data_frame_dict)
     # df = data_frame_dict["event"]
-    # print(df.to_string())
+    #
+    # for df in data_frame_dict:
+    #     print(data_frame_dict[df].to_string())
 
     se_start = echelon_dict[1]
     se_end = echelon_dict[2]
