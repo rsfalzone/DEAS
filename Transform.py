@@ -170,11 +170,46 @@ def outer(event_dict, requirement_rows):
                     requirement_dict[(room, echelon_dict_reverse[event_start])][commodity] = quantity
             else:
                 requirement_dict[(room, echelon_dict_reverse[event_start])] = {commodity: quantity}
-
     return echelon_dict, requirement_dict
 
-def inner(event_dict, requirement_rows):
+def inner(start, end, requirement_rows):
+    echelons = []
+    for row in requirement_rows:
+        event = row[0]
+        room = row[1]
+        start_setup = row[2]
+        req_end = row[5]
+        commodity = row[6]
+        quantity = row[7]
+        if start <= start_setup and start_setup < end:
+            if start_setup not in echelons:
+                echelons.append(start_setup)
+            if req_end not in echelons:
+                echelons.append(req_end)
+    echelons = sorted(echelons)
+    echelon_dict = {i : echelons[i] for i in range(len(echelons))}
 
+    requirement_dict = {}
+    for row in requirement_rows:
+        event = row[0]
+        room = row[1]
+        start_setup = row[2]
+        req_end = row[5]
+        commodity = row[6]
+        quantity = row[7]
+        i = 0
+        while i < len(echelons):
+            if (start_setup <= echelons[i]) :
+                if (echelons[i] < req_end):
+                    if (room, i +1) in requirement_dict:
+                            requirement_dict[(room, i +1)][commodity] = quantity
+                    else:
+                        requirement_dict[(room, i +1)] = {commodity: quantity}
+                    i += 1
+                else:
+                    i = len(echelons)
+            else:
+                i += 1
     return echelon_dict, requirement_dict
 
 def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDict, inventory_dict, total_inventory_dict, storage_cap_dict):
@@ -252,6 +287,98 @@ def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requireme
 
     return movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList
 
+def innerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDict, total_inventory_dict, storage_cap_dict, start_state, end_state):
+
+    #Creates 4 sets of arcs:
+    #   movement_arc_dict       All b to a, room to room movement arcs (decisions)
+    #   storage_cap_arc_dict    All a to b storage arcs (decisions)
+    #   event_req_arc_dict      All a to b event requirement arcs (givens)
+    #   utility_arc_dict        All arcs originating at the s node or between t nodes (givens)
+
+    storageRoomList = list(storage_cap_dict)
+    allRoomList = eventRoomList + storageRoomList
+    #print(allRoomList)
+    movement_arc_dict = {}
+    storage_cap_arc_dict = {}
+    event_req_arc_dict = {}
+    utility_arc_dict = {}
+    itemList = list(item_dict)
+
+    #Create general set of arcs for all time echelons other than the first and
+    #last
+    for echelon in echelon_dict:
+        for roomI in allRoomList:
+            for roomJ in allRoomList:
+                for ab in ["a", "b"]:
+                    if ab == "a":
+                        if roomI == roomJ:
+                            if (roomI, echelon) in requirementDict:
+                                if type(requirementDict[(roomI, echelon)]) == tuple:
+                                    for requirement in requirementDict[(roomI, echelon)]:
+                                        item, qty = requirement[0], requirement[1]
+                                        event_req_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (qty, qty, 0)
+                                elif type(requirementDict[(roomI, echelon)]) == dict:
+                                    for item in requirementDict[(roomI, echelon)]:
+                                        qty = requirementDict[(roomI, echelon)][item]
+                                        event_req_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (qty, qty, 0)
+                            if roomI in storageRoomList:
+                                for item in itemList:
+                                    # ub = int(storage_cap_dict[roomI] / item_dict[item][0]) ## MIGHT CHANGE WITH COMMODITY PAGE (UNITS/PARCEL)
+                                    item_vol = item_dict[item][1] / item_dict[item][0]
+                                    ub = int(storage_cap_dict[roomI] / item_vol)
+                                    storage_cap_arc_dict[((roomI, echelon, "a"),(roomJ, echelon, "b"), item)] = (0, ub, 0)
+                    if ab == "b":
+                        for item in itemList:
+                            item_max = total_inventory_dict[item]
+                            # item_cost = costDict[(roomI, roomJ)]
+                            item_cost = costDict[(roomI, roomJ)]/item_dict[item][0]
+                            movement_arc_dict[((roomI, echelon, "b"), (roomJ, echelon + 1, "a"), item)] = (0, item_max, item_cost)
+
+    last_echelon = sorted(echelon_dict)[-1]
+    for roomI in allRoomList:
+        for roomJ in allRoomList:
+            for item in itemList:
+                item_max = total_inventory_dict[item]
+                # item_cost = costDict[(roomI, roomJ)]
+                item_cost = costDict[(roomI, roomJ)]/item_dict[item][0]
+                movement_arc_dict[((roomI, last_echelon, "b"), (roomJ, last_echelon + 1, "a"), item)] = (0, item_max, item_cost)
+    #Create set of arcs for inital starting conditions from s node to each room
+
+    # for room in allRoomList:
+    #     for item in itemList:
+    #         item_max = total_inventory_dict[item]
+    #         movement_arc_dict[((room, (len(echelon_dict.keys())), "b"), ("t", (len(echelon_dict.keys()) + 1), "a"), item)] = (0, item_max, 0)
+    #         if room in storageRoomList:
+    #             utility_arc_dict[(("s", 0, "a"), (room, 0, "b"), item)] = (inventory_dict[(room, item)], inventory_dict[(room, item)], 0)
+    #         else:
+    #             utility_arc_dict[(("s", 0, "a"), (room, 0, "b"), item)] = (0, 0, 0)
+
+    for room in start_state:
+        for item in start_state[room]:
+            item_max = total_inventory_dict[item]
+            utility_arc_dict[(("s", 0, "a"), (room, 0, "b"), item)] = (start_state[room][item], start_state[room][item], 0)
+
+    #Create set of movement arcs for the first movement period
+
+    for roomI in allRoomList:
+        for roomJ in allRoomList:
+            for item in itemList:
+                item_max = total_inventory_dict[item]
+                # item_cost = costDict[(roomI, roomJ)]
+                item_cost = costDict[(roomI, roomJ)]/item_dict[item][0]
+                movement_arc_dict[((roomI, 0, "b"), (roomJ, 1, "a"), item)] = (0, item_max, item_cost)
+
+
+    for room in end_state:
+        for item in start_state[room]:
+            utility_arc_dict[((room, (len(echelon_dict.keys())), "a"), ("t", (len(echelon_dict.keys())), "b"), item)] = (end_state[room][item], end_state[room][item], 0)
+
+    # rooms = len(allRoomList)
+    # for item in itemList:
+    #     utility_arc_dict[(("t", (len(echelon_dict.keys()) + 1), "a"), ("t", (len(echelon_dict.keys()) + 1), "b"), item)] = (total_inventory_dict[item], total_inventory_dict[item], 0)
+
+    return movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList
+
 def dataFramer(arcDict):
     arcList = []
     for arc in arcDict.keys():
@@ -266,11 +393,10 @@ def excelOutputWriter(solution, echelon_dict):
     arcList.append(["Time", "echelon", "From Room", "To Room", "Commodity", "Amount"])
     for x in sorted(sorted(sorted(solution, key=lambda k: k[1][0]), key=lambda k: k[0][0]), key=lambda k: k[0][1]): ## Sort First by time, then by room???
         tail, head, commodity = x
-        if head[0] != "t":
-            if solution[x] > 0:
-                if tail[0] != head[0]:
-                    print(str(x) + ": " + str(solution[x]))
-                    arcList.append([echelon_dict[(head[1])], head[1], tail[0], head[0], commodity, solution[x]])
+        if solution[x] > 0:
+            # if tail[0] != head[0]:
+            print(str(x) + ": " + str(solution[x]))
+            arcList.append([echelon_dict[(tail[1])], tail[1], tail[0], head[0], commodity, solution[x]])
 
     book = load_workbook(excel_filename)
     df = pd.DataFrame(arcList)
@@ -296,11 +422,19 @@ def sup():
     df_dict = {'movement': movement_arc_df, 'storage': storage_cap_arc_df, 'event': event_req_arc_df, 'utility': utility_arc_df, 'storage_rooms': storage_cap_dict, 'commodities': item_dict}
     print("\a")
 
-    return(df_dict, cost_dict, priority_list, echelon_dict)
+    return(df_dict, cost_dict, priority_list, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict)
 
 
 def innerMCNF(start, end, start_state, end_state, event_room_list, item_dict, cost_dict, requirement_rows, total_inventory_dict, storage_cap_dict):
-    pass
+    echelon_dict, requirement_dict = inner(start, end, requirement_rows)
+    movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = innerConstructor(echelon_dict, event_room_list, item_dict, cost_dict, requirement_dict, total_inventory_dict, storage_cap_dict, start_state, end_state)
+    movement_arc_df = dataFramer(movement_arc_dict)
+    storage_cap_arc_df = dataFramer(storage_cap_arc_dict)
+    event_req_arc_df = dataFramer(event_req_arc_dict)
+    utility_arc_df = dataFramer(utility_arc_dict)
+    df_dict = {'movement': movement_arc_df, 'storage': storage_cap_arc_df, 'event': event_req_arc_df, 'utility': utility_arc_df, 'storage_rooms': storage_cap_dict, 'commodities': item_dict}
+    print("\a")
+    return(df_dict, cost_dict, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict)
 
 if __name__ == '__main__':
     import sys
