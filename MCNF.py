@@ -442,10 +442,11 @@ def sup1(xl_data, cost_dict, priority_list):
 
     # print(cap_constrs)
     lr = LagrangianRelaxation(m, iterations=5, relaxedConstrs=cap_constrs, commodityPriority=priority_list, cost_dict=cost_dict, arc_vars=arc_vars)
-    iterations, output = lr.subgradientAscent()
+    iterations, output, setup_arcs = lr.subgradientAscent()
     print(iterations)
     solution = output[sorted(output)[0]]
-    return solution
+
+    return solution, setup_arcs
 
 
 

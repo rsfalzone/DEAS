@@ -434,8 +434,12 @@ class LagrangianRelaxation(object):
             #     print(greedy_cost[x])
             self.printOutput(i)
 ############################################################################### ^
+            setup_arcs = {}
+            for x in self.arc_vars["utility"]:
+                if x[0][0] == "s":
+                    setup_arcs[x] = self.arc_vars["utility"][x].X
 
-            return self.iterations, solutions
+            return self.iterations, solutions, setup_arcs
         else:
             # No relaxed constraints to penalize
             # Or mismatch between multipliers and constraints
