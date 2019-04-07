@@ -21,30 +21,37 @@ def main():
     (data_frame_dict, cost_dict, priority_list, echelon_dict) = Transform.sup()
     print(data_frame_dict)
 
+
     outerSolution = MCNF.sup1(data_frame_dict, cost_dict, priority_list)
     solution = outerSolution
 
     start_state = {}
     end_state = {}
-    for x in solution:
+    for x in sorted(solution, key=lambda k: k[0][1]):
         if x[0][1] == 0:
             start_state[x] = solution[x]
-        if x[0][1] == 1:
+        elif x[0][1] == 1:
             end_state[x] = solution[x]
 
     utility = {}
     for arc in start_state:
-        _, head, com = arc
-        room, _, _ = head
-        utility[("s", 0, "a"), (room, 0, "b"), com] = start_state[arc]
+        _, (room, _, _), com = arc
+        if (("s", 0, "a"), (room, 0, "b"), com) in utility:
+            utility[(("s", 0, "a"), (room, 0, "b"), com)] += start_state[arc]
+        else:
+            utility[(("s", 0, "a"), (room, 0, "b"), com)] = start_state[arc]
 
 
-    LAST_TIME_ECHELON = 10
+    LAST_TIME_ECHELON = "LAST ECHELON FROM INNER"
     mvnt = {}
     for arc in end_state:
         tail, head, com = arc
         room, _, _ = head
-        mvnt[(room, LAST_TIME_ECHELON, "b"), ("t", LAST_TIME_ECHELON + 1, "a"), com] = end_state[arc]
+        if ((room, "Second to " +LAST_TIME_ECHELON, "b"), ("t", LAST_TIME_ECHELON , "a"), com) in mvnt:
+            mvnt[((room, "Second to " +LAST_TIME_ECHELON, "b"), ("t", LAST_TIME_ECHELON, "a"), com)] += end_state[arc]
+        else:
+            mvnt[((room, "Second to " +LAST_TIME_ECHELON, "b"), ("t", LAST_TIME_ECHELON, "a"), com)] = end_state[arc]
+
 
     print()
     print("Utility")
@@ -55,10 +62,10 @@ def main():
     print("MVNT")
     for x in mvnt:
         print(str(x) + ": " + str(mvnt[x]))
+
+
     print()
-
-
-
+    print("To Excel")
     Transform.excelOutputWriter(solution, echelon_dict)
 
     log_str += diagnosticStr("\nDynamic Equipment Allocation System ended")

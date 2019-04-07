@@ -440,6 +440,7 @@ def sup1(xl_data, cost_dict, priority_list):
 
     m.write("model.lp")
 
+    # print(cap_constrs)
     lr = LagrangianRelaxation(m, iterations=5, relaxedConstrs=cap_constrs, commodityPriority=priority_list, cost_dict=cost_dict, arc_vars=arc_vars)
     iterations, output = lr.subgradientAscent()
     print(iterations)

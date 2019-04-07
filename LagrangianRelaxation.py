@@ -65,18 +65,19 @@ class LagrangianRelaxation(object):
         under_cap = {}
         over_cap = {}
         for node in self.relaxedConstrs:
-            if node[0] != "t":
+            room, time, _ = node
+            if room != "t":
                 axb = self.relaxedConstrs[node].getValue()
                 if axb < 0:
-                    if node[1] in under_cap:
-                        under_cap[node[1]][(node[0], node[1], "a")] =  axb
+                    if time in under_cap:
+                        under_cap[time][(room, time, "a")] =  axb
                     else:
-                        under_cap[node[1]] = {(node[0], node[1], "a") :  axb}
+                        under_cap[time] = {(room, time, "a") :  axb}
                 elif axb > 0:
-                    if node[1] in over_cap:
-                        over_cap[node[1]][(node[0], node[1], "a")] =  axb
+                    if time in over_cap:
+                        over_cap[time][(room, time, "a")] =  axb
                     else:
-                        over_cap[node[1]] = {(node[0], node[1], "a") :  axb}
+                        over_cap[time] = {(room, time, "a") :  axb}
 
         time_echelons = {} ## TODO: Rename?
         for time in over_cap:
@@ -109,7 +110,8 @@ class LagrangianRelaxation(object):
                 for under_node in  under_cap[time]:
                     f.write(": ".join([str(under_node), str(under_cap[time][under_node])])+ "\n")
 
-
+            print(time_echelons)
+            print(under_cap)
             for time in sorted(list(time_echelons))[:-1]:
                 for over_node in time_echelons[time]:
                     # f.write("__________________________________\n")
