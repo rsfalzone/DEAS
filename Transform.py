@@ -173,10 +173,11 @@ def outer(event_dict, requirement_rows):
 
     return echelon_dict, requirement_dict
 
-def inner():
-    pass
+def inner(event_dict, requirement_rows):
 
-def constructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDict, inventory_dict, total_inventory_dict, storage_cap_dict):
+    return echelon_dict, requirement_dict
+
+def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDict, inventory_dict, total_inventory_dict, storage_cap_dict):
 
     #Creates 4 sets of arcs:
     #   movement_arc_dict       All b to a, room to room movement arcs (decisions)
@@ -287,7 +288,7 @@ def main(args):
 def sup():
     (inventory_dict, total_inventory_dict, storage_cap_dict, cost_dict, requirement_rows, event_room_list, event_dict, echelon_dict, item_dict, priority_list) = excelReader()
     echelon_dict, requirement_dict = outer(event_dict, requirement_rows)
-    movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = constructor(echelon_dict, event_room_list, item_dict, cost_dict, requirement_dict, inventory_dict, total_inventory_dict, storage_cap_dict)
+    movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = outerConstructor(echelon_dict, event_room_list, item_dict, cost_dict, requirement_dict, inventory_dict, total_inventory_dict, storage_cap_dict)
     movement_arc_df = dataFramer(movement_arc_dict)
     storage_cap_arc_df = dataFramer(storage_cap_arc_dict)
     event_req_arc_df = dataFramer(event_req_arc_dict)
@@ -296,6 +297,10 @@ def sup():
     print("\a")
 
     return(df_dict, cost_dict, priority_list, echelon_dict)
+
+
+def innerMCNF(start, end, start_state, end_state, event_room_list, item_dict, cost_dict, requirement_rows, total_inventory_dict, storage_cap_dict):
+    pass
 
 if __name__ == '__main__':
     import sys

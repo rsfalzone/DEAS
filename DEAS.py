@@ -23,6 +23,8 @@ def main():
     df = data_frame_dict["event"]
     print(df.to_string())
 
+    se_start = echelon_dict[1]
+    se_end = echelon_dict[2]
 
     outerSolution = MCNF.sup1(data_frame_dict, cost_dict, priority_list)
     solution = outerSolution
@@ -49,6 +51,11 @@ def main():
                     end_state[room][com] = solution[(tail, head, com)]
             else:
                 end_state[room] = {com:solution[(tail, head, com)]}
+
+    Transform.innerMCNF(se_start, se_end, start_state, end_state, #have
+        event_room_list, item_dict, #need
+        cost_dict, #have
+        requirement_rows, total_inventory_dict, storage_cap_dict) #need
 
     print()
     print("To Excel")
