@@ -274,7 +274,9 @@ def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requireme
     #Create general set of arcs for all time echelons other than the first and
     #last
     sorted_echelon_list = sorted(list(echelon_dict.keys()))
-    for echelon in sorted_echelon_list[1:]:
+    print(echelon_dict)
+    print(sorted_echelon_list)
+    for echelon in echelon_dict:
         for roomI in active_room_list:
             for roomJ in active_room_list:
                 for ab in ["a", "b"]:
@@ -303,10 +305,10 @@ def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requireme
                                 item_cost = costDict[(roomI, roomJ)]/item_dict[item][0]
                                 movement_arc_dict[((roomI, echelon, "b"), (roomJ, echelon + 1, "a"), item)] = (0, item_max, item_cost)
 
-    for roomI in all_room_list:
-        for roomJ in active_room_list:
-            for item in itemList:
-                movement_arc_dict[((roomI, 0, "b"), (roomJ, 1, "a"), item)] = (0, item_max, item_cost)
+    # for roomI in all_room_list:
+    #     for roomJ in active_room_list:
+    #         for item in itemList:
+    #             movement_arc_dict[((roomI, 0, "b"), (roomJ, 1, "a"), item)] = (0, item_max, item_cost)
 
     #Create set of arcs for the last movement opportunity
 
@@ -325,7 +327,7 @@ def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requireme
 
     #Create set of movement arcs for the first movement period
 
-    for roomI in active_room_list:
+    for roomI in all_room_list:
         for roomJ in active_room_list:
             for item in itemList:
                 item_max = total_inventory_dict[item]
@@ -339,7 +341,7 @@ def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requireme
 
     return movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, active_room_list
 
-def innerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDict, total_inventory_dict, storage_cap_dict, start_state, end_state):
+def innerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDict, total_inventory_dict, storage_cap_dict, start_state, end_state, inventory_dict):
 
     #Creates 4 sets of arcs:
     #   movement_arc_dict       All b to a, room to room movement arcs (decisions)
@@ -480,12 +482,12 @@ def sup():
     df_dict = {'movement': movement_arc_df, 'storage': storage_cap_arc_df, 'event': event_req_arc_df, 'utility': utility_arc_df, 'storage_rooms': storage_cap_dict, 'commodities': item_dict}
     print("\a")
 
-    return(df_dict, cost_dict, priority_list, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict)
+    return(df_dict, cost_dict, priority_list, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict, inventory_dict)
 
 
-def innerMCNF(start, end, start_state, end_state, event_room_list, item_dict, cost_dict, requirement_rows, total_inventory_dict, storage_cap_dict):
+def innerMCNF(start, end, start_state, end_state, event_room_list, item_dict, cost_dict, requirement_rows, total_inventory_dict, storage_cap_dict, inventory_dict):
     echelon_dict, requirement_dict = inner(start, end, requirement_rows)
-    movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = innerConstructor(echelon_dict, event_room_list, item_dict, cost_dict, requirement_dict, total_inventory_dict, storage_cap_dict, start_state, end_state)
+    movement_arc_dict, storage_cap_arc_dict, event_req_arc_dict, utility_arc_dict, allRoomList = innerConstructor(echelon_dict, event_room_list, item_dict, cost_dict, requirement_dict, total_inventory_dict, storage_cap_dict, start_state, end_state, inventory_dict)
     movement_arc_df = dataFramer(movement_arc_dict)
     storage_cap_arc_df = dataFramer(storage_cap_arc_dict)
     event_req_arc_df = dataFramer(event_req_arc_dict)

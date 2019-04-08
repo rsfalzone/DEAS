@@ -18,7 +18,7 @@ def main():
     log_str = diagnosticStr("Dynamic Equipment Allocation System started")
 
     print("Creating Arcs")
-    (data_frame_dict, cost_dict, priority_list, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict) = Transform.sup()
+    (data_frame_dict, cost_dict, priority_list, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict, inventory_dict) = Transform.sup()
     # print(data_frame_dict)
     # df = data_frame_dict["event"]
     #
@@ -59,7 +59,7 @@ def main():
     print("start")
     print(start_state)
 
-    (data_frame_dict, cost_dict, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict) = Transform.innerMCNF(se_start, se_end, start_state, end_state, event_room_list, item_dict, cost_dict, requirement_rows, total_inventory_dict, storage_cap_dict)
+    (data_frame_dict, cost_dict, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict) = Transform.innerMCNF(se_start, se_end, start_state, end_state, event_room_list, item_dict, cost_dict, requirement_rows, total_inventory_dict, storage_cap_dict, inventory_dict)
     innerSolution, inner_set_up = MCNF.sup1(data_frame_dict, cost_dict, priority_list)
     solution = innerSolution
 
