@@ -119,20 +119,29 @@ def outer(event_dict, requirement_rows, total_inventory_dict):
         latest_end = max(event_dict[event][1])
         event_times_dict[event] = (earliest_setup, latest_end)
     sorted_events = sorted(event_times_dict, key=lambda k: event_times_dict[k][0])
+    print(sorted_events)
+    print(event_times_dict)
 
     i = 0
     super_event_dict = {}
-    while i < (len(sorted_events) - 1):
-        event = sorted_events[i]
-        next_event = sorted_events[i + 1]
-        if event_times_dict[event][1] < event_times_dict[next_event][0]:
+    while i < (len(sorted_events)):
+        if i == (len(sorted_events) - 1):
             super_event_dict[event] = event_times_dict[event]
             i += 1
         else:
-            conglomerate_name = event + ' and ' + next_event
-            # super_event_dict[conglomerate_name] = (event_times_dict[event][0], max(event_times_dict[next_event][0], event_times_dict[next_event][1])) ## WHY MAX?
-            super_event_dict[conglomerate_name] = (event_times_dict[event][0], event_times_dict[next_event][1])
-            i += 2
+            event = sorted_events[i]
+            next_event = sorted_events[i + 1]
+            if event_times_dict[event][1] < event_times_dict[next_event][0]:
+                super_event_dict[event] = event_times_dict[event]
+                i += 1
+            else:
+                conglomerate_name = event + ' and ' + next_event
+                # super_event_dict[conglomerate_name] = (event_times_dict[event][0], max(event_times_dict[next_event][0], event_times_dict[next_event][1])) ## WHY MAX?
+                super_event_dict[conglomerate_name] = (event_times_dict[event][0], event_times_dict[next_event][1])
+                i += 2
+
+
+    print(super_event_dict)
 
     i = 0
     echelon_dict = {}
