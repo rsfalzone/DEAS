@@ -5,8 +5,8 @@ import datetime
 import pandas as pd
 from openpyxl import load_workbook
 
-# excel_filename = "DEAS_Equipment.xlsx"
-excel_filename = "EquipmentInventory.xlsx"
+excel_filename = "DEAS_Equipment.xlsx"
+# excel_filename = "EquipmentInventory.xlsx"
 
 def excelReader():
     '''Read in relevant data from Excel'''
@@ -275,10 +275,10 @@ def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requireme
         for item in itemList:
             item_max = total_inventory_dict[item]
             movement_arc_dict[((room, (len(echelon_dict.keys())), "b"), ("t", (len(echelon_dict.keys()) + 1), "a"), item)] = (0, item_max, 0)
-            if room in storageRoomList:
-                utility_arc_dict[(("s", 0, "a"), (room, 0, "b"), item)] = (inventory_dict[(room, item)], inventory_dict[(room, item)], 0)
-            else:
-                utility_arc_dict[(("s", 0, "a"), (room, 0, "b"), item)] = (0, 0, 0)
+            # if room in storageRoomList:
+            utility_arc_dict[(("s", 0, "a"), (room, 0, "b"), item)] = (inventory_dict[(room, item)], inventory_dict[(room, item)], 0)
+            # else:
+            #     utility_arc_dict[(("s", 0, "a"), (room, 0, "b"), item)] = (0, 0, 0)
 
     #Create set of movement arcs for the first movement period
 
