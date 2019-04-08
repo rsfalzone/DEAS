@@ -15,7 +15,7 @@ def excelReader():
     xl = pd.ExcelFile(excel_filename)
 
     # INVENTORY
-    inventory_df = xl.parse("Inventory by Room")
+    inventory_df = xl.parse("Inventory")
     inventory_rows = inventory_df.values.tolist()
 
     inventory_dict = {}
@@ -124,12 +124,15 @@ def outer(event_dict, requirement_rows, total_inventory_dict):
 
     i = 0
     super_event_dict = {}
+    print(len(sorted_events))
     while i < (len(sorted_events)):
+        event = sorted_events[i]
+        print(i)
+        print(event)
         if i == (len(sorted_events) - 1):
             super_event_dict[event] = event_times_dict[event]
             i += 1
         else:
-            event = sorted_events[i]
             next_event = sorted_events[i + 1]
             if event_times_dict[event][1] < event_times_dict[next_event][0]:
                 super_event_dict[event] = event_times_dict[event]
@@ -139,7 +142,6 @@ def outer(event_dict, requirement_rows, total_inventory_dict):
                 # super_event_dict[conglomerate_name] = (event_times_dict[event][0], max(event_times_dict[next_event][0], event_times_dict[next_event][1])) ## WHY MAX?
                 super_event_dict[conglomerate_name] = (event_times_dict[event][0], event_times_dict[next_event][1])
                 i += 2
-
 
     print(super_event_dict)
 
