@@ -394,7 +394,7 @@ class LagrangianRelaxation(object):
 
                 # print("norm(dLagrangeMults): " + str(norm(dLagrangeMults)))
                 # if norm(dLagrangeMults) > 0.01 :
-
+                print(Lλ)
                 if abs((self.m.ObjVal - Lλ) / Lλ) > 0.001:
                     print(abs(self.m.ObjVal - Lλ / Lλ))
                     Lλ = self.m.ObjVal
