@@ -455,10 +455,12 @@ def excelOutputWriter(solution, echelon_dict):
     arcList.append(["Time", "echelon", "From Room", "To Room", "Commodity", "Amount"])
     for x in sorted(sorted(sorted(solution, key=lambda k: k[1][0]), key=lambda k: k[0][0]), key=lambda k: k[0][1]): ## Sort First by time, then by room???
         tail, head, commodity = x
+        print(x)
         if solution[x] > 0:
             # if tail[0] != head[0]:
             print(str(x) + ": " + str(solution[x]))
-            arcList.append([echelon_dict[(tail[1])], tail[1], tail[0], head[0], commodity, solution[x]])
+            # print(echelon_dict[(tail[1])])
+            arcList.append([echelon_dict[(head[1])], head[1], tail[0], head[0], commodity, solution[x]])
 
     book = load_workbook(excel_filename)
     sheet_names = book.get_sheet_names()

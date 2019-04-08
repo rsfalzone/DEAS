@@ -82,51 +82,51 @@ def main():
                 print(str(x) + ": " + str(innerSolution[x]))
 
 
-    arcs_to_add = {}
-    for outer_arc in sorted_outer_arcs:
-        if outer_arc[0][1] == 0:
-            inventory_room = outer_arc[0][0]
-            outer_intermediary_room = outer_arc[1][0]
-            outer_com = outer_arc[2]
-            outer_val = outerSolution[outer_arc]
-            for inner_arc in sorted_inner_arcs:
-                if inner_arc[0][1] == 0:
-                    inner_com = inner_arc[2]
-                    if outer_com == inner_com:
-                        inner_intermediary_room = inner_arc[0][0]
-                        if outer_intermediary_room == inner_intermediary_room:
-                            destination_room = inner_arc[1][0]
-                            inner_val = innerSolution[inner_arc]
-                            if ((inventory_room, 0, "b"), (destination_room, 0, "a"), outer_com) in arcs_to_add:
-                                arcs_to_add[((inventory_room, 0, "b"), (destination_room, 0, "a"), outer_com)] += min(outer_val, inner_val)
-                            else:
-                                arcs_to_add[((inventory_room, 0, "b"), (destination_room, 0, "a"), outer_com)] = min(outer_val, inner_val)
+    # arcs_to_add = {}
+    # for outer_arc in sorted_outer_arcs:
+    #     if outer_arc[0][1] == 0:
+    #         inventory_room = outer_arc[0][0]
+    #         outer_intermediary_room = outer_arc[1][0]
+    #         outer_com = outer_arc[2]
+    #         outer_val = outerSolution[outer_arc]
+    #         for inner_arc in sorted_inner_arcs:
+    #             if inner_arc[0][1] == 0:
+    #                 inner_com = inner_arc[2]
+    #                 if outer_com == inner_com:
+    #                     inner_intermediary_room = inner_arc[0][0]
+    #                     if outer_intermediary_room == inner_intermediary_room:
+    #                         destination_room = inner_arc[1][0]
+    #                         inner_val = innerSolution[inner_arc]
+    #                         if ((inventory_room, 0, "b"), (destination_room, 0, "a"), outer_com) in arcs_to_add:
+    #                             arcs_to_add[((inventory_room, 0, "b"), (destination_room, 1, "a"), outer_com)] += min(outer_val, inner_val)
+    #                         else:
+    #                             arcs_to_add[((inventory_room, 0, "b"), (destination_room, 1, "a"), outer_com)] = min(outer_val, inner_val)
 
-    print("add")
-    for x in arcs_to_add:
-        if arcs_to_add[x] > 0:
-            print(str(x) + ": " +str(arcs_to_add[x]))
+    # print("add")
+    # for x in arcs_to_add:
+    #     if arcs_to_add[x] > 0:
+    #         print(str(x) + ": " +str(arcs_to_add[x]))
 
-    arcs_to_rem = []
-    for inner_arc in sorted_inner_arcs:
-        if inner_arc[0][1] == 0:
-            arcs_to_rem.append(inner_arc)
-    print("del")
-    print(arcs_to_rem)
+    # arcs_to_rem = []
+    # for inner_arc in sorted_inner_arcs:
+    #     if inner_arc[0][1] == 0:
+    #         arcs_to_rem.append(inner_arc)
+    # print("del")
+    # print(arcs_to_rem)
 
-    for x in arcs_to_rem:
-        del solution[x]
+    # for x in arcs_to_rem:
+    #     del solution[x]
 
-    for x in arcs_to_add:
-        solution[x] = arcs_to_add[x]
+    # for x in arcs_to_add:
+    #     solution[x] = arcs_to_add[x]
 
 
 
-    print()
-    print("SOLN")
-    for x in sorted(sorted(sorted(solution, key=lambda k: k[1][0]), key=lambda k: k[0][0]), key=lambda k: k[0][1]):
-        if solution[x] > 0:
-            print(str(x) + ": " + str(solution[x]))
+    # print()
+    # print("SOLN")
+    # for x in sorted(sorted(sorted(solution, key=lambda k: k[1][0]), key=lambda k: k[0][0]), key=lambda k: k[0][1]):
+    #     if solution[x] > 0:
+    #         print(str(x) + ": " + str(solution[x]))
 
 
     print()
