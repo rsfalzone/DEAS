@@ -4,16 +4,13 @@ import re
 import datetime
 import pandas as pd
 from openpyxl import load_workbook
+import xlwings
 
 excel_filename = "DEAS_Equipment.xlsx"
 # excel_filename = "EquipmentInventory.xlsx"
 
 def excelReader():
     '''Read in relevant data from Excel'''
-
-    # Save workbook to read formula values correctly
-    book = load_workbook(excel_filename)
-    book.save(excel_filename)
 
     xl = pd.ExcelFile(excel_filename)
 
@@ -42,7 +39,7 @@ def excelReader():
     for row in storage_rows:
         if any(row):
             room  = row[0]
-            capacity = float(row[3])
+            capacity = float(row[1]) * float(row[2])
             storage_cap_dict[room] = capacity
 
     # MOVEMENT COST
