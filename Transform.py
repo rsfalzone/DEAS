@@ -21,6 +21,11 @@ excel_filename = "DEAS_Equipment.xlsx"
 
 def excelWriter(df, sheet_name, excel_filename):
     book = load_workbook(excel_filename)
+    sheet_names = book.get_sheet_names()
+    if sheet_name in sheet_names:
+        sheet = book.get_sheet_by_name(sheet_name)
+        book.remove_sheet(sheet)
+        book.save(excel_filename)
     writer = pd.ExcelWriter(excel_filename, engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
@@ -228,7 +233,7 @@ def inner(start, end, requirement_rows):
             if req_end not in echelons:
                 echelons.append(req_end)
     echelons = sorted(echelons)
-    echelon_dict = {i : echelons[i] for i in range(len(echelons))}
+    echelon_dict = {i+1 : echelons[i] for i in range(len(echelons))}
 
     requirement_dict = {}
     for row in requirement_rows:
@@ -239,7 +244,7 @@ def inner(start, end, requirement_rows):
         commodity = row[6]
         quantity = row[7]
         i = 0
-        while i < len(echelons):
+        while i < len(echelon_dict):
             if (start_setup <= echelons[i]) :
                 if (echelons[i] < req_end):
                     if (room, i +1) in requirement_dict:
@@ -320,7 +325,7 @@ def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requireme
     #Create set of arcs for initial starting inventory
 
     for room in all_room_list:
-        for item in itemList:            
+        for item in itemList:
             utility_arc_dict[(("s", 0, "a"), (room, 0, "b"), item)] = (inventory_dict[(room, item)], inventory_dict[(room, item)], 0)
             # else:
             #     utility_arc_dict[(("s", 0, "a"), (room, 0, "b"), item)] = (0, 0, 0)
@@ -390,6 +395,7 @@ def innerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requireme
                             movement_arc_dict[((roomI, echelon, "b"), (roomJ, echelon + 1, "a"), item)] = (0, item_max, item_cost)
 
     last_echelon = sorted(echelon_dict)[-1]
+    print(sorted(echelon_dict))
     for roomI in active_room_list:
         for roomJ in active_room_list:
             for item in itemList:
@@ -423,7 +429,8 @@ def innerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requireme
                 item_cost = costDict[(roomI, roomJ)]/item_dict[item][0]
                 movement_arc_dict[((roomI, 0, "b"), (roomJ, 1, "a"), item)] = (0, item_max, item_cost)
 
-
+    print("endstats")
+    print(end_state)
     for room in end_state:
         for item in start_state[room]:
             utility_arc_dict[((room, (len(echelon_dict.keys())), "a"), ("t", (len(echelon_dict.keys())), "b"), item)] = (end_state[room][item], end_state[room][item], 0)

@@ -58,6 +58,8 @@ def main():
                 end_state[room] = {com:solution[(tail, head, com)]}
     print("start")
     print(start_state)
+    print("endd")
+    print(end_state)
 
     (data_frame_dict, cost_dict, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict) = Transform.innerMCNF(se_start, se_end, start_state, end_state, event_room_list, item_dict, cost_dict, requirement_rows, total_inventory_dict, storage_cap_dict, inventory_dict)
     for df in ['movement', 'storage', 'event', 'utility']:

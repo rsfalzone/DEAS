@@ -383,6 +383,10 @@ class LagrangianRelaxation(object):
             while i < self.iterations:
                 γ = math.sqrt(.001/i)
                 self.m.optimize()
+                vars = self.m.getVars()
+                for x in vars:
+                    print(str(x) + ": " + str(x.X))
+
                 # currLagrangeMults = {}  # Lagrange mults for the current iteration
                 # dLagrangeMults = []     # Rate of change vector for Lagrange mults
                 # print("Updated Lagrangian multipliers:")
