@@ -82,7 +82,43 @@ def main():
                 print(str(x) + ": " + str(innerSolution[x]))
 
 
-    # arcs_to_add = {}
+    greens = {}
+    for outer_arc in sorted_outer_arcs:
+        i, j, com = outer_arc
+        if i[1] == 0 and j[1] == 1:
+            if outerSolution[outer_arc] > 0:
+                if com in greens:
+                    if j in greens[com]:
+                        greens[com][j[0]].append(outer_arc)
+                    else:
+                        greens[com][j[0]] = [outer_arc]
+                else:
+                    greens[com] = {j[0] : [outer_arc]}
+    for com in greens:
+        js = list(greens[com])
+        blues = {}
+        for j in js:
+            inner_start = (j, 0, "b")
+            for inner_arc in sorted_inner_arcs:
+                if inner_arc[2] == com:
+                    if inner_arc[0] == inner_start:
+                        if innerSolution[inner_arc] > 0:
+                            if j in blues:
+                                blues[j].append(inner_arc)
+                            else:
+                                blues[j] = [inner_arc]
+        print("GREENS AND BLUES")
+        print(greens[com])
+        print(blues)
+        tree_cost = {}
+        for j in js:
+            for green in greens[com][j]:
+                for blue in blues[j]:
+                    cost = cost_dict[(green[0][0], blue[1][0])]
+                    tree_cost[(green[0][0],j,blue[1][0])]= cost
+        sorted_tree_cost = sorted(tree_cost, key=lambda k:tree_cost[k])
+        print(sorted_tree_cost)
+    # # arcs_to_add = {}
     # for outer_arc in sorted_outer_arcs:
     #     if outer_arc[0][1] == 0:
     #         inventory_room = outer_arc[0][0]
@@ -102,17 +138,18 @@ def main():
     #                         else:
     #                             arcs_to_add[((inventory_room, 0, "b"), (destination_room, 1, "a"), outer_com)] = min(outer_val, inner_val)
 
-    # print("add")
-    # for x in arcs_to_add:
-    #     if arcs_to_add[x] > 0:
-    #         print(str(x) + ": " +str(arcs_to_add[x]))
-
     # arcs_to_rem = []
     # for inner_arc in sorted_inner_arcs:
     #     if inner_arc[0][1] == 0:
     #         arcs_to_rem.append(inner_arc)
     # print("del")
     # print(arcs_to_rem)
+
+    # print("add")
+    # for x in arcs_to_add:
+    #     if arcs_to_add[x] > 0:
+    #         print(str(x) + ": " +str(arcs_to_add[x]))
+
 
     # for x in arcs_to_rem:
     #     del solution[x]
