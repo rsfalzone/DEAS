@@ -22,8 +22,9 @@ def main():
     # print(data_frame_dict)
     # df = data_frame_dict["event"]
     #
-    # for df in data_frame_dict:
-    #     print(data_frame_dict[df].to_string())
+    for df in ['movement', 'storage', 'event', 'utility']:
+        # print(data_frame_dict[df].to_string())
+        Transform.excelWriter(data_frame_dict[df], df, deas_xl)
 
     se_start = echelon_dict[1]
     se_end = echelon_dict[2]
