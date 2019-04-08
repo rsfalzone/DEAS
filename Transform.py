@@ -11,6 +11,10 @@ excel_filename = "DEAS_Equipment.xlsx"
 def excelReader():
     '''Read in relevant data from Excel'''
 
+    # Save workbook to read formula values correctly
+    book = load_workbook(excel_filename)
+    book.save(excel_filename)
+
     xl = pd.ExcelFile(excel_filename)
 
     # INVENTORY
@@ -408,6 +412,11 @@ def excelOutputWriter(solution, echelon_dict):
             arcList.append([echelon_dict[(tail[1])], tail[1], tail[0], head[0], commodity, solution[x]])
 
     book = load_workbook(excel_filename)
+    sheet_names = book.get_sheet_names()
+    if 'Schedule' in sheet_names:
+        sheet = book.get_sheet_by_name('Schedule')
+        book.remove_sheet(sheet)
+        book.save(excel_filename)
     df = pd.DataFrame(arcList)
     writer = pd.ExcelWriter(excel_filename, engine='openpyxl')
     writer.book = book
