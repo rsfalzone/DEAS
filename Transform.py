@@ -6,7 +6,7 @@ import pandas as pd
 from openpyxl import load_workbook
 import xlwings
 
-excel_filename = "DEAS_Equipment.xlsx"
+excel_filename = "DEAS.xlsx"
 # excel_filename = "EquipmentInventory.xlsx"
 
 # def excelWriter(arcDict, sheet_name):
