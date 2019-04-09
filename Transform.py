@@ -19,14 +19,14 @@ excel_filename = "DEAS.xlsx"
     #     arcList.append([arc[0][0], arc[0][1], arc[0][2], arc[1][0], arc[1][1],
     #         arc[1][2], arc[2], arcDict[arc][0], arcDict[arc][1], arcDict[arc][2]])
 
-def excelWriter(df, sheet_name, excel_filename):
-    book = load_workbook(excel_filename)
+def excelWriter(df, sheet_name, xl_filename):
+    book = load_workbook(xl_filename)
     sheet_names = book.get_sheet_names()
     if sheet_name in sheet_names:
         sheet = book.get_sheet_by_name(sheet_name)
         book.remove_sheet(sheet)
-        book.save(excel_filename)
-    writer = pd.ExcelWriter(excel_filename, engine='openpyxl')
+        book.save(xl_filename)
+    writer = pd.ExcelWriter(xl_filename, engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
     df.to_excel(writer, sheet_name=sheet_name, index=False, index_label=False, header=True)
@@ -259,6 +259,10 @@ def inner(start, end, requirement_rows):
     return echelon_dict, requirement_dict
 
 def outerConstructor(echelon_dict, eventRoomList, item_dict, costDict, requirementDict, inventory_dict, total_inventory_dict, storage_cap_dict):
+    # print("costdict:")
+    # for (roomI, roomJ) in costDict:
+    #     if roomI == 'A 301':
+    #         print((roomI, roomJ))
 
     #Creates 4 sets of arcs:
     #   movement_arc_dict       All b to a, room to room movement arcs (decisions)

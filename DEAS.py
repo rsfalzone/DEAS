@@ -22,9 +22,9 @@ def main():
     # print(data_frame_dict)
     # df = data_frame_dict["event"]
     #
-    # for df in ['movement', 'storage', 'event', 'utility']:
-    #     # print(data_frame_dict[df].to_string())
-    #     Transform.excelWriter(data_frame_dict[df], df, deas_xl)
+    for df in ['movement', 'storage', 'event', 'utility']:
+        # print(data_frame_dict[df].to_string())
+        Transform.excelWriter(data_frame_dict[df], df, 'Outer.xlsx')
 
     se_start = echelon_dict[1]
     se_end = echelon_dict[2]
@@ -64,7 +64,7 @@ def main():
     (data_frame_dict, cost_dict, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict) = Transform.innerMCNF(se_start, se_end, start_state, end_state, event_room_list, item_dict, cost_dict, requirement_rows, total_inventory_dict, storage_cap_dict, inventory_dict)
     for df in ['movement', 'storage', 'event', 'utility']:
         # print(data_frame_dict[df].to_string())
-        Transform.excelWriter(data_frame_dict[df], df, deas_xl)
+        Transform.excelWriter(data_frame_dict[df], df, 'Inner.xlsx')
     innerSolution, inner_set_up = MCNF.sup1(data_frame_dict, cost_dict, priority_list)
     solution = innerSolution
 
