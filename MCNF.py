@@ -382,7 +382,7 @@ def sup1(xl_data, cost_dict, priority_list):
             arc_var = m.addVar(lb=arc[7], ub=arc[8], obj=arc[9], name=name_format.format(*arc[0:7]).replace(" ", "_"))
             arc_vars[arc_sheet] = tupledict({((arc[0], arc[1], arc[2]), (arc[3], arc[4], arc[5]), arc[6]):arc_var})
     m.update()
-
+    print("vars made")
 ###############################################################################
     time_echelons = sorted(time_echelons)
     rooms = e_rooms + s_rooms
@@ -422,7 +422,7 @@ def sup1(xl_data, cost_dict, priority_list):
             m.addConstr(LHS, sense=GRB.EQUAL, rhs=RHS, name=str((node, commodity)).replace(" ", "_"))
     m.update()
     m.write("model.lp")
-
+    print("fb constraints made")
 ##############################################################################
 # Lagrangian Penalty
 
@@ -441,6 +441,7 @@ def sup1(xl_data, cost_dict, priority_list):
     m.write("model.lp")
 
     # print(cap_constrs)
+    print("Relaxed COnstrs made")
     lr = LagrangianRelaxation(m, iterations=5, relaxedConstrs=cap_constrs, commodityPriority=priority_list, cost_dict=cost_dict, arc_vars=arc_vars)
     iterations, output, setup_arcs = lr.subgradientAscent()
     print(iterations)
