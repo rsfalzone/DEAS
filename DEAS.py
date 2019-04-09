@@ -81,7 +81,8 @@ def main():
             if innerSolution[x] > 0:
                 print(str(x) + ": " + str(innerSolution[x]))
 
-
+    arcs_to_rem =[]
+    arcs_to_add = {}
     greens = {}
     for outer_arc in sorted_outer_arcs:
         i, j, com = outer_arc
@@ -94,8 +95,14 @@ def main():
                         greens[com][j[0]] = [outer_arc]
                 else:
                     greens[com] = {j[0] : [outer_arc]}
+    print("greens")
+    print(greens)
     for com in greens:
-        js = list(greens[com])
+        # js = list(greens[com])
+        js = {j : sum([outerSolution[green] for green in greens[com][j]]) for j in greens[com]}
+        print("js")
+        print(js)
+        # sum([solution[green][j] for green in greens[com]])
         blues = {}
         for j in js:
             inner_start = (j, 0, "b")
@@ -107,55 +114,39 @@ def main():
                                 blues[j].append(inner_arc)
                             else:
                                 blues[j] = [inner_arc]
-        print("GREENS AND BLUES")
-        print(greens[com])
+        print("BLUES")
         print(blues)
         tree_cost = {}
         for j in js:
             for green in greens[com][j]:
                 for blue in blues[j]:
                     cost = cost_dict[(green[0][0], blue[1][0])]
-                    tree_cost[(green[0][0],j,blue[1][0])]= cost
-        sorted_tree_cost = sorted(tree_cost, key=lambda k:tree_cost[k])
+                    tree_cost[(green[0][0],j,blue[1][0])]= (cost, min(outerSolution[green], innerSolution[blue]))
+        sorted_tree_cost = sorted(tree_cost, key=lambda k:tree_cost[k][0])
         print(sorted_tree_cost)
-    # # arcs_to_add = {}
-    # for outer_arc in sorted_outer_arcs:
-    #     if outer_arc[0][1] == 0:
-    #         inventory_room = outer_arc[0][0]
-    #         outer_intermediary_room = outer_arc[1][0]
-    #         outer_com = outer_arc[2]
-    #         outer_val = outerSolution[outer_arc]
-    #         for inner_arc in sorted_inner_arcs:
-    #             if inner_arc[0][1] == 0:
-    #                 inner_com = inner_arc[2]
-    #                 if outer_com == inner_com:
-    #                     inner_intermediary_room = inner_arc[0][0]
-    #                     if outer_intermediary_room == inner_intermediary_room:
-    #                         destination_room = inner_arc[1][0]
-    #                         inner_val = innerSolution[inner_arc]
-    #                         if ((inventory_room, 0, "b"), (destination_room, 0, "a"), outer_com) in arcs_to_add:
-    #                             arcs_to_add[((inventory_room, 0, "b"), (destination_room, 1, "a"), outer_com)] += min(outer_val, inner_val)
-    #                         else:
-    #                             arcs_to_add[((inventory_room, 0, "b"), (destination_room, 1, "a"), outer_com)] = min(outer_val, inner_val)
 
-    # arcs_to_rem = []
-    # for inner_arc in sorted_inner_arcs:
-    #     if inner_arc[0][1] == 0:
-    #         arcs_to_rem.append(inner_arc)
-    # print("del")
-    # print(arcs_to_rem)
+        i = 0
+        while sum(js.values()) > 0:
+            pinkarc = sorted_tree_cost[i]
+            flow = min(tree_cost[pinkarc][1], js[pinkarc[1]])
+            js[pinkarc[1]] -= flow
+            i_node = (pinkarc[0], 0, "b")
+            j_node = (pinkarc[2], 1, "a")
+            arcs_to_add[(i_node, j_node, com)] = flow
+            i += 1
 
-    # print("add")
-    # for x in arcs_to_add:
-    #     if arcs_to_add[x] > 0:
-    #         print(str(x) + ": " +str(arcs_to_add[x]))
+        print(arcs_to_add)
 
+    for x in innerSolution:
+        if x[0][1] == 0 and x[0][2] == "b":
+            if x not in arcs_to_rem:
+                arcs_to_rem.append(x)
 
-    # for x in arcs_to_rem:
-    #     del solution[x]
+    for x in arcs_to_rem:
+        del solution[x]
 
-    # for x in arcs_to_add:
-    #     solution[x] = arcs_to_add[x]
+    for x in arcs_to_add:
+        solution[x] = arcs_to_add[x]
 
 
 
