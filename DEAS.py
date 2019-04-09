@@ -89,7 +89,7 @@ def main():
         if i[1] == 0 and j[1] == 1:
             if outerSolution[outer_arc] > 0:
                 if com in greens:
-                    if j in greens[com]:
+                    if j[0] in greens[com]:
                         greens[com][j[0]].append(outer_arc)
                     else:
                         greens[com][j[0]] = [outer_arc]
@@ -99,6 +99,8 @@ def main():
     print(greens)
     for com in greens:
         # js = list(greens[com])
+        j = "ER2"
+        print([outerSolution[green] for green in greens[com][j]])
         js = {j : sum([outerSolution[green] for green in greens[com][j]]) for j in greens[com]}
         print("js")
         print(js)

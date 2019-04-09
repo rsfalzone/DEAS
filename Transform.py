@@ -29,7 +29,7 @@ def excelWriter(df, sheet_name, excel_filename):
     writer = pd.ExcelWriter(excel_filename, engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-    df.to_excel(writer, sheet_name=sheet_name, index=False, index_label=False, header=False)
+    df.to_excel(writer, sheet_name=sheet_name, index=False, index_label=False, header=True)
     writer.save()
 
 def excelReader():
@@ -455,11 +455,12 @@ def excelOutputWriter(solution, echelon_dict):
     arcList.append(["Time", "echelon", "From Room", "To Room", "Commodity", "Amount"])
     for x in sorted(sorted(sorted(solution, key=lambda k: k[1][0]), key=lambda k: k[0][0]), key=lambda k: k[0][1]): ## Sort First by time, then by room???
         tail, head, commodity = x
-        print(x)
-        if solution[x] > 0:
+        # print(x)
+        # if solution[x] > 0:
             # if tail[0] != head[0]:
-            print(str(x) + ": " + str(solution[x]))
+        print(str(x) + ": " + str(solution[x]))
             # print(echelon_dict[(tail[1])])
+        if (head[1]) in echelon_dict:
             arcList.append([echelon_dict[(head[1])], head[1], tail[0], head[0], commodity, solution[x]])
 
     book = load_workbook(excel_filename)
