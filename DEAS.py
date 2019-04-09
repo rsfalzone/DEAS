@@ -3,7 +3,7 @@ import Transform
 import MCNF
 
 indent = "    "
-deas_xl = "DEAS_Equipment.xlsx"
+deas_xl = "DEAS.xlsx"
 
 def log(string, filename="log.txt"):
     with open(filename, "w") as f:
@@ -22,9 +22,9 @@ def main():
     # print(data_frame_dict)
     # df = data_frame_dict["event"]
     #
-    for df in ['movement', 'storage', 'event', 'utility']:
-        # print(data_frame_dict[df].to_string())
-        Transform.excelWriter(data_frame_dict[df], df, deas_xl)
+    # for df in ['movement', 'storage', 'event', 'utility']:
+    #     # print(data_frame_dict[df].to_string())
+    #     Transform.excelWriter(data_frame_dict[df], df, deas_xl)
 
     se_start = echelon_dict[1]
     se_end = echelon_dict[2]
