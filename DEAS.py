@@ -99,8 +99,6 @@ def main():
     print(greens)
     for com in greens:
         # js = list(greens[com])
-        j = "ER2"
-        print([outerSolution[green] for green in greens[com][j]])
         js = {j : sum([outerSolution[green] for green in greens[com][j]]) for j in greens[com]}
         print("js")
         print(js)
