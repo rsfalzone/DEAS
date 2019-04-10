@@ -144,16 +144,16 @@ def outer(event_dict, requirement_rows, total_inventory_dict):
         latest_end = max(event_dict[event][1])
         event_times_dict[event] = (earliest_setup, latest_end)
     sorted_events = sorted(event_times_dict, key=lambda k: event_times_dict[k][0])
-    print(sorted_events)
-    print(event_times_dict)
+    # print(sorted_events)
+    # print(event_times_dict)
 
     i = 0
     super_event_dict = {}
-    print(len(sorted_events))
+    # print(len(sorted_events))
     while i < (len(sorted_events)):
         event = sorted_events[i]
-        print(i)
-        print(event)
+        # print(i)
+        # print(event)
         if i == (len(sorted_events) - 1):
             super_event_dict[event] = event_times_dict[event]
             i += 1

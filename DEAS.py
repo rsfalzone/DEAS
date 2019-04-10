@@ -1,6 +1,7 @@
 import pandas as pd
 import Transform
 import MCNF
+import FindPar
 
 indent = "    "
 deas_xl = "DEAS.xlsx"
@@ -22,12 +23,12 @@ def main():
     # print(data_frame_dict)
     # df = data_frame_dict["event"]
     #
-    for df in ['movement', 'storage', 'event', 'utility']:
-        # print(data_frame_dict[df].to_string())
-        Transform.excelWriter(data_frame_dict[df], df, 'Outer.xlsx')
+    # for df in ['movement', 'storage', 'event', 'utility']:
+    #     # print(data_frame_dict[df].to_string())
+    #     Transform.excelWriter(data_frame_dict[df], df, 'Outer.xlsx')
 
-    se_start = echelon_dict[1]
-    se_end = echelon_dict[2]
+    # se_start = echelon_dict[1]
+    # se_end = echelon_dict[2]
 
     outerSolution, outer_set_up = MCNF.sup1(data_frame_dict, cost_dict, priority_list)
     solution = outerSolution
@@ -156,10 +157,12 @@ def main():
     #     if solution[x] > 0:
     #         print(str(x) + ": " + str(solution[x]))
 
-
-    print()
-    print("To Excel")
-    Transform.excelOutputWriter(solution, echelon_dict)
+    print("FindPar")
+    # print(solution)
+    FindPar.sup2(solution)
+    # print()
+    # print("To Excel")
+    # Transform.excelOutputWriter(solution, echelon_dict)
 
     log_str += diagnosticStr("\nDynamic Equipment Allocation System ended")
     log(log_str)
