@@ -404,22 +404,56 @@ def sup1(xl_data, cost_dict, priority_list):
 ###############################################################################
 # Flow Balance Constraints
 
-    fb_nodes = [(r, t, d) for r in rooms for t in time_echelons[:-1] for d in ["a", "b"] if not (t == 0 and d == "a")]
-    fb_nodes += [("t", time_echelons[-1], "a")]
-    nodes = fb_nodes + [("s", 0, "a")] + [("t", time_echelons[-1],"b")]
+    # fb_nodes = [(r, t, d) for r in rooms for t in time_echelons[:-1] for d in ["a", "b"] if not (t == 0 and d == "a")]
+    # fb_nodes += [("t", time_echelons[-1], "a")]
+    # nodes = fb_nodes + [("s", 0, "a")] + [("t", time_echelons[-1],"b")]
 
-    for node in fb_nodes:
-        for commodity in commodity_vols:
-            LHS = LinExpr()
-            RHS = LinExpr()
-            for arc_type in arc_vars:
-                for tail, head, com in arc_vars[arc_type]:
-                    if com == commodity:
-                        if head == node:
-                            LHS.add(arc_vars[arc_type][(tail, head, com)])
-                        elif tail == node:
-                            RHS.add(arc_vars[arc_type][(tail, head, com)])
-            m.addConstr(LHS, sense=GRB.EQUAL, rhs=RHS, name=str((node, commodity)).replace(" ", "_"))
+    # for node in fb_nodes:
+    #     for commodity in commodity_vols:
+    #         LHS = LinExpr()
+    #         RHS = LinExpr()
+    #         for arc_type in arc_vars:
+    #             for tail, head, com in arc_vars[arc_type]:
+    #                 if com == commodity:
+    #                     if head == node:
+    #                         LHS.add(arc_vars[arc_type][(tail, head, com)])
+    #                     elif tail == node:
+    #                         RHS.add(arc_vars[arc_type][(tail, head, com)])
+    #         m.addConstr(LHS, sense=GRB.EQUAL, rhs=RHS, name=str((node, commodity)).replace(" ", "_"))
+    print("New add Constrs")
+    linExprs = {}
+    for arc_type in arc_vars:
+        for arc in arc_vars[arc_type]:
+            i, j, com = arc
+            if i in linExprs:
+                if com in linExprs[i]:
+                    linExprs[i][com]["RHS"].add(arc_vars[arc_type][arc])
+                else:
+                    linExprs[i][com] = {"RHS":LinExpr(arc_vars[arc_type][arc]), "LHS": LinExpr()}
+            else:
+                linExprs[i] = {com:{"RHS":LinExpr(arc_vars[arc_type][arc]), "LHS": LinExpr()}}
+            if j in linExprs:
+                if com in linExprs[j]:
+                    linExprs[j][com]["LHS"].add(arc_vars[arc_type][arc])
+                else:
+                    linExprs[j][com] = {"LHS":LinExpr(arc_vars[arc_type][arc]), "RHS": LinExpr()}
+            else:
+                linExprs[j] = {com:{"LHS":LinExpr(arc_vars[arc_type][arc]), "RHS": LinExpr()}}
+
+    nodes = list(linExprs)
+
+    if ("s", 0, "a") in linExprs:
+        del linExprs[("s", 0, "a")]
+    if ("t", time_echelons[-1],"b") in linExprs:
+        del linExprs[("t", time_echelons[-1],"b")]
+
+    for node in linExprs:
+        for com in linExprs[node]:
+            LHS = linExprs[node][com]["LHS"]
+            RHS = linExprs[node][com]["RHS"]
+            m.addConstr(LHS, sense=GRB.EQUAL, rhs=RHS, name=str((node, com)).replace(" ", "_"))
+
+
     m.update()
     m.write("model.lp")
     print("fb constraints made")
