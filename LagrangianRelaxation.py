@@ -29,7 +29,7 @@ def linExpr2Str(linExpr):
 
 
 class LagrangianRelaxation(object):
-    def __init__(self, m, iterations=1000, relaxedConstrs=None, commodityPriority=None, cost_dict=None, arc_vars=None):
+    def __init__(self, m, iterations=1000, relaxedConstrs=None, commodityPriority=None, cost_dict=None, arc_vars=None, item_dict=None):
         self.m = m
         self.mSense = m.ModelSense
         self.unrelaxedObj = m.getObjective()
@@ -40,6 +40,7 @@ class LagrangianRelaxation(object):
         self.commodityPriority = commodityPriority
         self.cost_dict = cost_dict
         self.arc_vars = arc_vars
+        self.item_dict = item_dict
 
     def updateObj(self):
         penalty = LinExpr()
@@ -52,7 +53,7 @@ class LagrangianRelaxation(object):
         self.m.setObjective(objective, self.mSense)
         return objective
 
-    def greedyAlgorithm(self, iteration, item_dict):
+    def greedyAlgorithm(self, iteration):
         print("greedy_swap")
         original_cost = self.unrelaxedObj.getValue()
         model_cost = original_cost
@@ -184,7 +185,7 @@ class LagrangianRelaxation(object):
                         # print(movement_arcs_dict[green_arc])
                         if (over_node in over_cap[time]) and (movement_arcs_dict[blue_arc] > 0) and (movement_arcs_dict[green_arc] > 0):
                             if under_node in under_cap[time]:
-                                vol_per_item = item_dict[commodity][1] / item_dict[commodity][0]
+                                vol_per_item = self.item_dict[commodity][1] / self.item_dict[commodity][0]
                                 # f.write("----------------------------------\n")
                                 # f.write("Rerouting " +str(commodity) + " from " + str(origin_node) + "\n")
                                 # f.write("Now checking " + str(under_node) + "\n")
