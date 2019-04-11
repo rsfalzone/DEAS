@@ -52,7 +52,7 @@ class LagrangianRelaxation(object):
         self.m.setObjective(objective, self.mSense)
         return objective
 
-    def greedyAlgorithm(self, iteration):
+    def greedyAlgorithm(self, iteration, item_dict):
         print("greedy_swap")
         original_cost = self.unrelaxedObj.getValue()
         model_cost = original_cost
@@ -184,13 +184,14 @@ class LagrangianRelaxation(object):
                         # print(movement_arcs_dict[green_arc])
                         if (over_node in over_cap[time]) and (movement_arcs_dict[blue_arc] > 0) and (movement_arcs_dict[green_arc] > 0):
                             if under_node in under_cap[time]:
+                                vol_per_item = item_dict[commodity][1] / item_dict[commodity][0]
                                 # f.write("----------------------------------\n")
                                 # f.write("Rerouting " +str(commodity) + " from " + str(origin_node) + "\n")
                                 # f.write("Now checking " + str(under_node) + "\n")
                                 a = abs(over_cap[time][over_node]) # Volume over capacity still to move from over_node
                                 b = abs(under_cap[time][under_node]) # Spare capacity in under_node
-                                c = abs(movement_arcs_dict[blue_arc]) # Volume available to move from origin_node
-                                d = abs(movement_arcs_dict[green_arc]) # Volume available to move to destination_node
+                                c = abs(movement_arcs_dict[blue_arc] * vol_per_item) # Volume available to move from origin_node
+                                d = abs(movement_arcs_dict[green_arc] * vol_per_item) # Volume available to move to destination_node
                                 swap_count = min(a, b, c, d)
                                 # f.write("    Volume to move from over_node     | "+ str(a) + "\n")
                                 # f.write("    Space available in under_node     | "+ str(b) + "\n")
@@ -416,6 +417,8 @@ class LagrangianRelaxation(object):
                     solutions[cost_w_greedy] = arc_vars
                     # sub_cost_real.append(self.unrelaxedObj.getValue())
                     # greedy_cost.append(cost_w_greedy)
+                    print("L(λ) at iteration" + str(i) + ":" + "\n")
+                    print(Lλ)
 ############################################################################### v
                     # self.printOutput(i)
 ############################################################################### ^
