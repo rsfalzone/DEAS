@@ -20,6 +20,7 @@ def main():
 
     print("Creating Arcs")
     (data_frame_dict, cost_dict, priority_list, echelon_dict, event_room_list, item_dict, requirement_rows, total_inventory_dict, storage_cap_dict, inventory_dict) = Transform.sup()
+    print(item_dict)
     # print(data_frame_dict)
     # df = data_frame_dict["event"]
     #
@@ -30,7 +31,7 @@ def main():
     # se_start = echelon_dict[1]
     # se_end = echelon_dict[2]
 
-    outerSolution, outer_set_up = MCNF.sup1(data_frame_dict, cost_dict, priority_list)
+    outerSolution, outer_set_up = MCNF.sup1(data_frame_dict, cost_dict, priority_list, item_dict)
     solution = outerSolution
     # sorted_outer_arcs = sorted(solution, key=lambda k: k[0][1])
 
