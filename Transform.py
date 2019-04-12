@@ -96,8 +96,8 @@ def excelReader():
             if room not in event_room_list:
                 event_room_list.append(room)
 
-            if commodity not in item_list:
-                item_list.append(commodity)
+            # if commodity not in item_list:
+            #     item_list.append(commodity)
 
             if event not in event_dict:
                 event_dict[event] = ([start_setup], [req_end])
@@ -127,9 +127,9 @@ def excelReader():
         vol_per_parcel = float(row[2])
         priority = int(row[3])
         if any(row):
-            if commodity in item_list:
-                item_dict[commodity] = (com_per_parcel, vol_per_parcel)
-                priority_dict[commodity] = priority
+            #if commodity in item_list:  #Removed condition to ensure all commodities are modelled (at increased cost of complexity)
+            item_dict[commodity] = (com_per_parcel, vol_per_parcel)
+            priority_dict[commodity] = priority
 
     priority_list = sorted(priority_dict, key=lambda k: priority_dict[k])
 
