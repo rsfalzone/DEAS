@@ -29,7 +29,7 @@ def linExpr2Str(linExpr):
 
 
 class LagrangianRelaxation(object):
-    def __init__(self, m, iterations=1000, relaxedConstrs=None, commodityPriority=None, cost_dict=None, arc_vars=None, item_dict=None):
+    def __init__(self, m, item_dict, iterations=1000, relaxedConstrs=None, commodityPriority=None, cost_dict=None, arc_vars=None):
         self.m = m
         self.mSense = m.ModelSense
         self.unrelaxedObj = m.getObjective()
@@ -383,7 +383,7 @@ class LagrangianRelaxation(object):
         if any(self.relaxedConstrs) and (self.lagrangeMults.keys() == self.relaxedConstrs.keys()):
             i = 1
             while i < self.iterations:
-                γ = math.sqrt(.001/i)
+                γ = math.sqrt(.0000001/i)
                 self.m.optimize()
                 # vars = self.m.getVars()
                 # for x in vars:
