@@ -24,9 +24,9 @@ def getData(solution):
     return echelons
 
 def CSVwriter(d):
-    with open(filename, newline="") as f:
-        write.writerow(['Echelon', 'Storage Room', 'Commodity', 'Quantity'])
+    with open(filename, "w", newline="") as f:
         writer = csv.writer(f)
+        writer.writerow(['Echelon', 'Storage Room', 'Commodity', 'Quantity'])
         for t in d:
             for r in d[t]:
                 for c in d[t][r]:
@@ -36,3 +36,9 @@ def sup2(solution):
     d = getData(solution)
     CSVwriter(d)
 
+def main():
+    d = {"t":{"r":{"c": 1}}}
+    CSVwriter(d)
+
+if __name__ == '__main__':
+    main()
