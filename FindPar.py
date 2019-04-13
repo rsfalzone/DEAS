@@ -24,7 +24,8 @@ def getData(solution):
     return echelons
 
 def CSVwriter(d):
-    with open(filename, "a", newline="") as f:
+    with open(filename, newline="") as f:
+        write.writerow(['Echelon', 'Storage Room', 'Commodity', 'Quantity'])
         writer = csv.writer(f)
         for t in d:
             for r in d[t]:
